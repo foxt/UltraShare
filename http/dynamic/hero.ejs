@@ -2,6 +2,7 @@
 <html>
     <head>
         <title><%= pageTitle %></title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="/css/bulma.min.css"></link>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,10 +12,16 @@
             <div class="hero-body">
               <div class="container">
                 <h1 class="title">
-                    <%= heroTitle %> 
+                    <%- heroTitle %> 
                 </h1>
                 <h2 class="subtitle">
-                    <%= heroText %> 
+                    <%- heroText %> <br>
+                    <% heroLinks.forEach(function(link){ %>
+                        <a class="button is-<%= link.color %>" href="<%= link.link %>">
+                            <i class="material-icons"><%= link.icon %></i> 
+                            <%= link.text %>
+                        </a>
+                    <% }); %>
                 </h2>
               </div>
             </div>
