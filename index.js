@@ -1,7 +1,7 @@
 
 const Express = require('express')
 const db = global.db = require("./db");
-const config = require("./config")
+const config = global.config = require("./config")
 const path = require("path")
 const ejs = require('ejs')
 
