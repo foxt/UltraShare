@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="/css/bulma.min.css"></link>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <section class="hero is-primary is-fullheight is-bold">
+    <div class="hero-body">
+      <div class="container">
+        <div class="box">
+          <h1>Login</h1>
+          <h6>Username</h6>
+          <input class="input is-rounded" type="text" placeholder="Username">
+          <h6>TOTP Code</h6>
+          <input class="input is-rounded" type="number" placeholder="TOTP Code"  maxlength="6" min="0" max="999999" pattern="\d{6}" onchange="checkTOTP()" onkeyup="checkTOTP()">
+          <span class="tag is-warning is-medium" id="httpsWarning">Your credentials will be sent <strong> in plain text.</strong></span><br>
+          <button class="button is-link is-large" onclick="login()">Login</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    if (location.protocol == "https") {
+      document.querySelector("#httpsWarning").style.display = "none"
+    }
+    var totp = document.querySelector("input[type=number]")
+    var username = document.querySelector("input[type=text]")
+    function checkTOTP() {
+      if (totp.value.match(totp.pattern) && totp.value.length == 6) {
+        totp.valid = true
+        totp.className = "input is-rounded is-success"
+      } else {
+        totp.valid = false
+        totp.className = "input is-rounded is-danger"
+      }
+    }
+    async function login() {
+      checkTOTP()
+      if (totp.valid && username.value != "") {
+        document.querySelector("button").className = "button is-link is-large is-loading"
+        var ftch = await fetch("/api/login", {
+          method: "POST",
+          body: JSON.stringify({
+            username: username.value,
+            totp: totp.value
+          })
+        })
+      }
+    }
+
+  </script>
+  <style>
+    strong {
+      padding-left: 0.25em;
+    }
+    h1 {
+      font-size: 300%;
+      text-align: center;
+    }
+    h6{
+      text-align: center;
+      font-size: 150%;
+      padding-top: 0.5em;
+    }
+    button,#httpsWarning {
+      text-align: center;
+      margin-top: 0.5em;
+      margin-left: calc(50% - 2em);
+    }
+    #httpsWarning {
+      margin-left: calc(50% - 10em);
+    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance:textfield; /* Firefox */
+    }
+  </style>
+</body>
+</html>
