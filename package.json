@@ -1,0 +1,29 @@
+{
+  "name": "ultrashare",
+  "version": "1.0.0",
+  "description": "UltraShare is a all in one server for screenshots, files, images, and links.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thelmgn/ultrashare.git"
+  },
+  "keywords": [
+    "share",
+    "sharex",
+    "server",
+    "screenshot",
+    "images",
+    "link-shortner",
+    "magiccap",
+    "kshare"
+  ],
+  "author": "theLMGN",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/thelmgn/ultrashare/issues"
+  },
+  "homepage": "https://github.com/thelmgn/ultrashare#readme"
+}
