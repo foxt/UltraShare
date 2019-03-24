@@ -1,4 +1,5 @@
 const fs = require("fs")
+const speakeasy = require("speakeasy")
 
 function randomString(length, chars) {
     var result = '';
@@ -26,10 +27,17 @@ module.exports = function(app) {
         var data = ""
         req.on("data", function(d) {data += d})
         req.on("end", function() {
-            console.log(data)
             var j = JSON.parse(data)
             if (j.username == global.config.username) {
-                console.log(j)
+                var valid = speakeasy.totp.verify({ secret: global.config.totpSecret,
+                    encoding: 'base32',
+                    token: j.totp })
+                if (valid) {
+                    res.send(global.config.apiKey)
+                } else {
+                    res.status(401)
+                    res.send("invalid totp code")
+                }
             } else {
                 res.status(401)
                 res.send("invalid username")
