@@ -1,8 +1,16 @@
-const http = require('http')
-const db = require("db");
+const Express = require('express')
+const db = global.db = require("./db");
 const config = require("./config")
 
-http.createServer(function (req, res) {
-    res.write('Hello World!'); //write a response to the client
-    res.end(); //end the response
-}).listen(8080);
+
+const app = Express()
+
+require("./http/api")(app)
+require("./http/static")(app)
+require("./http/db")(app)
+
+app.get("/*", function(req,res) {
+    res.send("http/staticFiles/404.html")
+}) 
+
+console.log("[HTTP] Ready!")
