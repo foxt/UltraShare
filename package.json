@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/thelmgn/ultrashare/issues"
   },
-  "homepage": "https://github.com/thelmgn/ultrashare#readme"
+  "homepage": "https://github.com/thelmgn/ultrashare#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
 }
