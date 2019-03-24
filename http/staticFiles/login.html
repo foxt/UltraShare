@@ -42,13 +42,25 @@
       checkTOTP()
       if (totp.valid && username.value != "") {
         document.querySelector("button").className = "button is-link is-large is-loading"
-        var ftch = await fetch("/api/login", {
-          method: "POST",
-          body: JSON.stringify({
-            username: username.value,
-            totp: totp.value
+        try {
+          var ftch = await fetch("/api/login", {
+            method: "POST",
+            body: JSON.stringify({
+              username: username.value,
+              totp: totp.value
+            })
           })
-        })
+          console.log(ftch)
+          if (ftch.status ==  200){
+            window.localStorage.setItem("apikey", await ftch.text())
+            location.replace("/dash")
+          } else {
+            document.querySelector("button").className = "button is-link is-large"
+            alert(await ftch.text())
+          }
+        } catch(e) {
+          alert(e)
+        }
       }
     }
 
