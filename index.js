@@ -10,6 +10,7 @@ const app = Express()
 require("./http/api")(app)
 
 app.get("/", function(req,res) {
+    console.log("[MAIN]",req.ip, req.url, req.header("User-Agent"))
     ejs.renderFile("./http/dynamic/hero.ejs", {
         pageTitle: "UltraShare",
         heroType: "primary is-bold",
@@ -34,6 +35,7 @@ app.use(Express.static('http/staticFiles'))
 require("./http/db")(app)
 
 app.get("/*", function(req,res) {
+    console.log("[404]",req.ip, req.url, req.header("User-Agent"))
     ejs.renderFile("./http/dynamic/hero.ejs", {
         pageTitle: "404 - Not found",
         heroType: "danger is-bold",
