@@ -34,6 +34,9 @@
                         </a>
                     </div>
                 </div>
+                <a class="navbar-item" href="/dash/apikey.html">
+                    Get your API key
+                </a>
             </div>
             
             <div class="navbar-end">
@@ -71,6 +74,7 @@
                 </div>
             </div>
         </div>
+        <audio src="/Copy.mp3"></audio>
     </section>
     
     <style>
@@ -102,6 +106,7 @@
                         var j = await ftch.json()
                         document.querySelector(".file-name").value = j.url
                         document.querySelector(".file-name").select()
+                        document.querySelector("audio").play()
                         document.execCommand("copy")
                     } else {
                         location.replace("/login.html")

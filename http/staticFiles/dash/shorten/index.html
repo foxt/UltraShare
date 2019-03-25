@@ -34,6 +34,9 @@
                         </a>
                     </div>
                 </div>
+                <a class="navbar-item" href="/dash/apikey.html">
+                    Get your API key
+                </a>
             </div>
             
             <div class="navbar-end">
@@ -66,7 +69,7 @@
             </div>
         </div>
     </section>
-    
+    <audio src="/Copy.mp3"></audio>
     <style>
         h1 {
             font-size: 400%;
@@ -83,6 +86,7 @@
                 var j = JSON.parse(fetch)
                 document.querySelector("#linkbox").value = j.url
                 document.querySelector("#linkbox").select();
+                document.querySelector("audio").play()
                 document.execCommand("copy");
             } else {
                 document.querySelector("#linkbox").value = "Invalid URL!"

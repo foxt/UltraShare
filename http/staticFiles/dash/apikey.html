@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UltraShare Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bulma.min.css"></link>
+    <link rel="stylesheet" href="dash.css"></link>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <strong>UltraShare</strong>
+        </div>
+        
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/dash">
+                    View items
+                </a>
+                
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Create item
+                    </a>
+                    
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/dash/shorten">
+                            Link
+                        </a>
+                        <a class="navbar-item" href="/dash/upload">
+                            Upload file
+                        </a>
+                    </div>
+                </div>
+                <a class="navbar-item is-active" href="/dash/apikey.html">
+                    Get your API key
+                </a>
+            </div>
+            
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-light" onclick="localStorage.clear();location.replace('/')">
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    
+    <div class="container">
+        <h1 class="title">Get your API key</h1>
+        <h2 class="subtitle">Anyone with this API key can control this server as they wish, bypassing login, yellow. Keep it a secret.</h2>
+        <button onclick="alert('Read the warning!')" class="button is-danger is-small">Copy</button>
+        <button onclick="copyAPIToken()" class="button is-warning is-small">Copy</button>
+        <button onclick="alert('Read the warning!')"class="button is-info is-small">Copy</button>
+        <button onclick="alert('Read the warning!')"class="button is-link is-small">Copy</button>
+        <button onclick="alert('Read the warning!')"class="button is-success is-small">Copy</button>
+        <input style="opacity: 0;pointer-events: none;" type="text"></input>
+        <audio src="/Copy.mp3"></audio>
+    </div>
+    <script>
+        function copyAPIToken() {
+            document.querySelector("input").value = localStorage.getItem("apikey")
+            document.querySelector("input").select()
+            document.querySelector("audio").play()
+            document.execCommand("copy")
+        }
+    </script>
+    <script src="dash.js"></script>
+</body>
+</html>
