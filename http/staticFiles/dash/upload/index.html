@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UltraShare Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bulma.min.css"></link>
+    <link rel="stylesheet" href="../dash.css"></link>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <strong>UltraShare</strong>
+        </div>
+        
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/dash">
+                    View items
+                </a>
+                
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Create item
+                    </a>
+                    
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/dash/shorten">
+                            Link
+                        </a>
+                        <a class="navbar-item is-active" href="/dash/upload">
+                            Upload file
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-light" onclick="localStorage.clear();location.replace('/')">
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    
+    <section class="hero is-primary is-fullheight is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h1>Upload a file</h1>
+                <div class="file is-boxed is-info has-name is-large">
+                    <label class="file-label">
+                        <input class="file-input" type="file" id="file">
+                        <span class="file-cta">
+                            <span class="file-icon">
+                                <i class="material-icons">cloud_upload</i>
+                            </span>
+                            <span class="file-label">
+                                Choose a file…
+                            </span>
+                        </span>
+                        <input type="text" class="file-name input is-medium" readonly value="Upload a file above.">
+                            
+                        </input>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <style>
+        h1 {
+            font-size: 400%;
+        }
+    </style>
+    
+    <script>
+        var file = document.getElementById("file");
+        file.onchange = async function(){
+            var f = file.files[0]
+            if(f) {
+                file.disabled = true
+                document.querySelector(".file-name").value = "Reading " + f.name
+                var r = new FileReader();
+                r.onload = async function(e) { 
+                    var contents = e.target.result;
+                    document.querySelector(".file-name").value = "Uploading " + f.name
+                    var ftch = await fetch("/api/upload", {
+                        method: "POST",
+                        headers: {
+                            Authorization: window.localStorage.getItem("apikey"),
+                            fileext: f.name.split(".")[1]
+                        },
+                        body: contents
+                    })
+                    if (ftch.status ==  200){
+                        var j = await ftch.json()
+                        document.querySelector(".file-name").value = j.url
+                        document.querySelector(".file-name").select()
+                        document.execCommand("copy")
+                    } else {
+                        location.replace("/login.html")
+                    }
+                }
+                r.readAsArrayBuffer(f);
+            }
+            file.disabled = false
+        };
+    </script>
+    <script src="../dash.js"></script>
+</body>
+</html>
