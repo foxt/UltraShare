@@ -78,6 +78,50 @@ module.exports = function(app) {
             res.send("invalid api key")
         }
     })
+    app.get("/api/delete/:id", function(req,res) {
+        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+        var auth = req.header("Authorization")
+        if (global.config.apiKey == auth) {
+            res.set({"Content-Type": "application/json"}) 
+            var item = global.db.get({id: req.params.id})
+            if (item) {
+                global.db.remove(item)
+                if(item.file) {
+                    try {
+                        fs.unlinkSync("./files/" + item.file)
+                    } catch(e){}
+                }
+                global.db.save()
+                res.send("ok! deleted file with id " + item.id)
+            } else {
+                res.status(404)
+                res.send("not found")
+            }
+        } else {
+            res.status(401)
+            res.send("invalid api key")
+        }
+    })
+    app.get("/api/change/:id/:newid", function(req,res) {
+        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+        var auth = req.header("Authorization")
+        if (global.config.apiKey == auth) {
+            res.set({"Content-Type": "application/json"}) 
+            var item = global.db.get({id: req.params.id})
+            var itemNew = global.db.get({id: req.params.newid})
+            if (item && !itemNew) {
+                global.db.update(item,{id: req.params.newid})
+                global.db.save()
+                res.send("ok! " + req.params.id + " is now " + req.params.newid)
+            } else {
+                res.status(404)
+                res.send("not found, or new id is taken")
+            }
+        } else {
+            res.status(401)
+            res.send("invalid api key")
+        }
+    })
     app.post("/api/upload", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
         var auth = req.header("Authorization")
@@ -129,5 +173,9 @@ module.exports = function(app) {
             res.status(401)
             res.send("invalid api key")
         }
+    })
+    app.get("/api/brew", function(req,res) {
+        res.status(418)
+        res.send("I'm a teapot.")
     })
 }
