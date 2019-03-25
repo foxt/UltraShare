@@ -51,47 +51,145 @@
     
     <div class="container">
         <center>
-            <p class="subtitle is-5 ">
+            <p class="subtitle is-5 itemCount">
                 <strong id="itemCount">123</strong> items
             </p>
         </center>
         <table class="table is-striped is-fullwidth is-hoverable">
-                <thead>
-                  <tr>
+            <thead>
+                <tr>
                     <th>File type</th>
                     <th>URL</th>
                     <th>Date</th>
                     <th>Uploaded via</th>
                     <th>Actions</th>
-                  </tr>
-                </thead>
-                
-                <tbody>
-                  <tr>
-                    <th>File (png)</th>
-                    <td><a href="/XXX.png">XXX</a></td>
-                    <td class="fuzzydate" data-date="2019-03-25T18:59:41.914Z">5 minutes ago</td>
-                    <td>Insomnia</td>
-                    <td><a href="javascript:changeID('XXX')" class="button is-warning">Change URL</a> <a href="javascript:delete('XXX')" class="button is-danger">Delete</a></td>
-                  </tr>
-                  <tr>
+                </tr>
+            </thead>
+            
+            <tbody id="uploads">
+                <tr>
                     <th>Link (google.com)</th>
                     <td><a href="/google">google</a></td>
                     <td class="fuzzydate" data-date="2019-03-24T22:24:04.025Z">21 hours ago</td>
                     <td>Insomnia</td>
                     <td><a href="javascript:changeID('google')" class="button is-warning">Change URL</a> <a href="javascript:delete('google')" class="button is-danger">Delete</a></td>
-                  </tr>
-                </tbody>
-              </table>
+                </tr>
+                <tr>
+                    <th>File (png)</th>
+                    <td><a href="/abc.png">abc</a></td>
+                    <td class="fuzzydate" data-date="2019-03-25T18:59:41.914Z">5 minutes ago</td>
+                    <td>Insomnia</td>
+                    <td><a href="javascript:changeID('abc')" class="button is-warning">Change URL</a> <a href="javascript:delete('abc')" class="button is-danger">Delete</a></td>
+                </tr>
+                
+            </tbody>
+        </table>
+        <div class="modal" style="display: none">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+            </div>
+        </div>
     </div>
     
     <style>
-        
+        .modal-iframe {
+            height: 70vh;
+            width: 70vw;
+            position:fixed;
+            left: 15vw;
+            top: 15vh;
+        }
     </style>
+    <script src="moment.js"></script>
     <script>
+        function makeNoun(word) {
+            return word.replace(/\b[a-z]/g, function(letter) {
+                return letter.toUpperCase();
+            });
+        }
+        function parseUA(ua) {
+            // Uploaders
+            if (ua.toLowerCase().includes("magiccap")) {return "MagicCap"}
+
+            // Browsers
+            // Chrome
+            if (ua.toLowerCase().includes("edg")) {return "Edge"} // Edge Chromium uses 'Edg', Edge (native) uses 'Edge'
+            if (ua.toLowerCase().includes("vivaldi")) {return "Vivaldi"}
+            if (ua.toLowerCase().includes("opera")) {return "Opera"}
+            if (ua.toLowerCase().includes("brave")) {return "Brave"}
+            if (ua.toLowerCase().includes("chrome")) {return "Chrome"}
+            // Other browsers
+            if (ua.toLowerCase().includes("firefox")) {return "Firefox"}
+            if (ua.toLowerCase().includes("trident")) {return "Internet Explorer"}
+
+            // Others
+            return makeNoun(ua.split("/")[0])
+        }
+        function makeUpload(upload) {
+            var trailer = ""
+            if (upload.type == "file") {
+                trailer = `(${upload.file.split(".")[1]})`
+            } else if (upload.type = "link") {
+                trailer = `(${new URL(upload.redir).hostname})`
+            }
+            return `<tr>
+                <th>${makeNoun(upload.type)} ${trailer}</th>
+                <td><a href="/${upload.id}">${upload.id}</a></td>
+                <td><abbr title="${new Date(upload.date)}">${moment(upload.date).fromNow()}</abbr></td>
+                <td>${parseUA(upload.ua)}</td>
+                <td><a href="javascript:preview('${upload.id}')" class="button is-primary">Preview</a>
+                    <a href="javascript:changeID('${upload.id}')" class="button is-warning">Change URL</a>
+                    <a href="javascript:deleteItem('${upload.id}')" class="button is-danger">Delete</a></td>
+            </tr>`
+        }
+        document.querySelector(".modal-background").onclick = function() {
+            document.querySelector(".modal").style.display = "none"
+        }
+        function preview(id) {
+            document.querySelector(".modal").style.display = "block"
+            document.querySelector(".modal-content").innerHTML = `<iframe class="modal-iframe" width="800" height="600" src="/${id}"></iframe>`
+        }
+        async function deleteItem(id) {
+            if (confirm("Really delete " + id + "?")) {
+                var response = await makeAPIRequest("GET","/api/delete/" + id)
+                if (response.startsWith("ok!")) {
+                    pageMain()
+                } else {
+                    alert(response)
+                }
+            }
+        }
+        async function changeID(id) {
+            var newid = prompt("Enter a new URL for " + id)
+            if (newid && newid.length > 1) {
+                var response = await makeAPIRequest("GET","/api/change/" + id + "/" + newid)
+                if (response.startsWith("ok!")) {
+                    pageMain()
+                } else {
+                    alert(response)
+                }
+            }
+        }
         async function pageMain() {
             uploads = JSON.parse(await makeAPIRequest("GET", "/api/get"))
+            if (typeof uploads != "array") {
+                uploads = [uploads]
+                document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">1</strong> item`
+            } else {
+                document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">123</strong> items`
+            }
             document.querySelector("#itemCount").innerText = uploads.length
+            uploads = uploads.sort(function(a, b) {
+                a = new Date(a.date);
+                b = new Date(b.date);
+                return a>b ? -1 : a<b ? 1 : 0;
+            });
+            var string = ""
+            for (var upload of uploads) {
+                string += makeUpload(upload)
+            }
+            document.querySelector("#uploads").innerHTML = string
+            setTimeout(pageMain,5000)
         }
     </script>
     <script src="dash.js"></script>
