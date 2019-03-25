@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UltraShare Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bulma.min.css"></link>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <strong>Ultrashare</strong>
+        </div>
+        
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item">
+                    View items
+                </a>
+                
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Create item
+                    </a>
+                    
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item">
+                            Link
+                        </a>
+                        <a class="navbar-item">
+                            Upload file
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-light">
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <style>
+        .navbar-brand {
+            padding-top: 0.9em;
+        }
+    </style>
+    <script>
+        async function makeAPIRequest(method,ep,data) {
+            var ftch = await fetch(ep, {
+                method: method,
+                headers: {
+                    Authorization: window.localStorage.getItem("apikey")
+                },
+                body: data
+            })
+            if (ftch.status ==  200){
+                return await ftch.text()
+            } else {
+                location.replace("/login.html")
+            }
+        }
+        async function main() {
+            username = await makeAPIRequest("GET", "/api/getUsername")
+        }
+        main()
+    </script>
+</body>
+</html>
