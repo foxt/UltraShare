@@ -1,5 +1,6 @@
 const fs = require("fs")
 const speakeasy = require("speakeasy")
+const rateLimit = require("express-rate-limit")
 
 function randomString(length, chars) {
     var result = '';
@@ -23,7 +24,18 @@ function getID(req) {
 }
 
 module.exports = function(app) {
-    app.post("/api/login", function(req,res) {
+    app.use("/api/", rateLimit({
+        windowMs: 60 * 1000, 
+        max: 60,
+        message:
+          "Slow down there, bucko! You can only send 60 API requests a minute."
+      }));
+    app.post("/api/login", rateLimit({
+        windowMs: 15 * 60 * 1000, 
+        max: 5,
+        message:
+          "You have been ratelimited from logging in. Either wait 15 minutes, or restart the server."
+      }), function(req,res) {
         var data = ""
         req.on("data", function(d) {data += d})
         req.on("end", function() {
