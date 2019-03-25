@@ -44,7 +44,16 @@ module.exports = function(app) {
             }
         })
     })
-
+    app.get("/api/getUsername", function(req,res) {
+        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+        var auth = req.header("Authorization")
+        if (global.config.apiKey == auth) {
+            res.send(global.config.username)
+        } else {
+            res.status(401)
+            res.send("invalid api key")
+        }
+    })
 
     app.get("/api/get", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
