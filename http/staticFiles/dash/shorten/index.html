@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UltraShare Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bulma.min.css"></link>
+    <link rel="stylesheet" href="../dash.css"></link>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <strong>UltraShare</strong>
+        </div>
+        
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/dash">
+                    View items
+                </a>
+                
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Create item
+                    </a>
+                    
+                    <div class="navbar-dropdown">
+                        <a class="is-active navbar-item" href="/dash/shorten">
+                            Link
+                        </a>
+                        <a class="navbar-item" href="/dash/upload">
+                            Upload file
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-light" onclick="localStorage.clear();location.replace('/')">
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    
+    <section class="hero is-primary is-fullheight is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h1>Shorten a link</h1>
+                <div class="field has-addons">
+                    <p class="control is-expanded">
+                        <input class="input is-large" id="linkbox" type="url" placeholder="Link here">
+                    </p>
+                    <p class="control">
+                        <button class="button is-info is-large" onclick="shorten()">
+                            Shorten
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <style>
+        h1 {
+            font-size: 400%;
+            text-align: center;
+        }
+    </style>
+        
+    <script>
+        async function shorten() {
+            document.querySelector("button").className = "button is-info is-large is-loading"
+            var value = document.querySelector("#linkbox").value
+            if (document.querySelector("#linkbox").checkValidity()) {
+                var fetch = await makeAPIRequest("POST", "/api/shorten", value)
+                var j = JSON.parse(fetch)
+                document.querySelector("#linkbox").value = j.url
+                document.querySelector("#linkbox").select();
+                document.execCommand("copy");
+            } else {
+                document.querySelector("#linkbox").value = "Invalid URL!"
+                setTimeout(function() {
+                    document.querySelector("#linkbox").value = value
+                },2500)
+            }
+            document.querySelector("button").className = "button is-info is-large"
+        }
+    </script>
+    <script src="../dash.js"></script>
+</body>
+</html>
