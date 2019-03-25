@@ -36,6 +36,7 @@ require("./http/db")(app)
 
 app.get("/*", function(req,res) {
     console.log("[404]",req.ip, req.url, req.header("User-Agent"))
+    res.status(404)
     ejs.renderFile("./http/dynamic/hero.ejs", {
         pageTitle: "404 - Not found",
         heroType: "danger is-bold",
