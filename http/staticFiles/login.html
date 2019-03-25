@@ -11,7 +11,7 @@
   <section class="hero is-primary is-fullheight is-bold">
     <div class="hero-body">
       <div class="container">
-        <div class="box">
+        <div class="box" id="login" style="display: none;">
           <h1>Login</h1>
           <h6>Username</h6>
           <input class="input is-rounded" type="text" placeholder="Username">
@@ -19,6 +19,9 @@
           <input class="input is-rounded" type="number" placeholder="TOTP Code"  maxlength="6" min="0" max="999999" pattern="\d{6}" onchange="checkTOTP()" onkeyup="checkTOTP()">
           <span class="tag is-warning is-medium" id="httpsWarning">Your credentials will be sent <strong> in plain text.</strong></span><br>
           <button class="button is-link is-large" onclick="login()">Login</button>
+        </div>
+        <div class="box" id="loggingin">
+          <div class="bigLoader"></div>
         </div>
       </div>
     </div>
@@ -63,6 +66,25 @@
         }
       }
     }
+    async function checkAuth() {
+      var ftch = await fetch("/api/getUsername", {
+          headers: {
+              Authorization: window.localStorage.getItem("apikey")
+          }
+      })
+      if (ftch.status ==  200){
+        location.replace("/dash")
+      } else {
+        document.querySelector("#loggingin").style.display = "none"
+        document.querySelector("#login").style.display = "block"
+      }
+    }
+    if (localStorage.getItem("apikey")) {
+      checkAuth() 
+    } else {
+      document.querySelector("#loggingin").style.display = "none"
+      document.querySelector("#login").style.display = "block"
+    }
 
   </script>
   <style>
@@ -93,6 +115,24 @@
     }
     input[type=number] {
       -moz-appearance:textfield; /* Firefox */
+    }
+    .bigLoader {
+      -webkit-animation: spinAround .5s infinite linear;
+      animation: spinAround .5s infinite linear;
+      border: 0.25em solid #fff;
+      border-radius: 290486px;
+      border-right-color: transparent;
+      border-top-color: transparent;
+      content: "";
+      display: block;
+      height: 5em;
+      position: relative;
+      width: 5em;
+      margin-left: calc(50% - 2.5em);
+    }
+    #loggingin {
+      background: transparent;
+      box-shadow: none;
     }
   </style>
 </body>
