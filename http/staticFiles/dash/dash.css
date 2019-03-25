@@ -1,0 +1,7 @@
+.navbar-brand {
+    padding-top: 0.9em;
+    margin-left: 0.9em;
+}
+.navbar-item.is-active {
+    border-bottom: 2px solid #3273dc;
+}

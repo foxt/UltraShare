@@ -4,6 +4,7 @@
     <title>UltraShare Dashboard</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/css/bulma.min.css"></link>
+    <link rel="stylesheet" href="dash.css"></link>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -15,7 +16,7 @@
         
         <div id="navbarBasicExample" class="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item">
+                <a class="navbar-item is-active">
                     View items
                 </a>
                 
@@ -38,7 +39,7 @@
             <div class="navbar-end">
                 <div class="navbar-item">
                     <div class="buttons">
-                        <a class="button is-light">
+                        <a class="button is-light" onclick="localStorage.clear();location.replace('/')">
                             Log out
                         </a>
                     </div>
@@ -46,30 +47,53 @@
             </div>
         </div>
     </nav>
+    
+    
+    <div class="container">
+        <center>
+            <p class="subtitle is-5 ">
+                <strong id="itemCount">123</strong> items
+            </p>
+        </center>
+        <table class="table is-striped is-fullwidth is-hoverable">
+                <thead>
+                  <tr>
+                    <th>File type</th>
+                    <th>URL</th>
+                    <th>Date</th>
+                    <th>Uploaded via</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                
+                <tbody>
+                  <tr>
+                    <th>File (png)</th>
+                    <td><a href="/XXX.png">XXX</a></td>
+                    <td class="fuzzydate" data-date="2019-03-25T18:59:41.914Z">5 minutes ago</td>
+                    <td>Insomnia</td>
+                    <td><a href="javascript:changeID('XXX')" class="button is-warning">Change URL</a> <a href="javascript:delete('XXX')" class="button is-danger">Delete</a></td>
+                  </tr>
+                  <tr>
+                    <th>Link (google.com)</th>
+                    <td><a href="/google">google</a></td>
+                    <td class="fuzzydate" data-date="2019-03-24T22:24:04.025Z">21 hours ago</td>
+                    <td>Insomnia</td>
+                    <td><a href="javascript:changeID('google')" class="button is-warning">Change URL</a> <a href="javascript:delete('google')" class="button is-danger">Delete</a></td>
+                  </tr>
+                </tbody>
+              </table>
+    </div>
+    
     <style>
-        .navbar-brand {
-            padding-top: 0.9em;
-        }
+        
     </style>
     <script>
-        async function makeAPIRequest(method,ep,data) {
-            var ftch = await fetch(ep, {
-                method: method,
-                headers: {
-                    Authorization: window.localStorage.getItem("apikey")
-                },
-                body: data
-            })
-            if (ftch.status ==  200){
-                return await ftch.text()
-            } else {
-                location.replace("/login.html")
-            }
+        async function pageMain() {
+            uploads = JSON.parse(await makeAPIRequest("GET", "/api/get"))
+            document.querySelector("#itemCount").innerText = uploads.length
         }
-        async function main() {
-            username = await makeAPIRequest("GET", "/api/getUsername")
-        }
-        main()
     </script>
+    <script src="dash.js"></script>
 </body>
 </html>
