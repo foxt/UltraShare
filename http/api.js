@@ -28,8 +28,8 @@ module.exports = function(app) {
         windowMs: 60 * 1000, 
         max: 60,
         message:
-          "Slow down there, bucko! You can only send 60 API requests a minute."
-      }));
+            "Slow down there, bucko! You can only send 60 API requests a minute."
+    }));
     app.post("/api/login", rateLimit({
         windowMs: 15 * 60 * 1000, 
         max: 5,
