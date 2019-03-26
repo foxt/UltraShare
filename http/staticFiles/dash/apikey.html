@@ -57,15 +57,13 @@
     
     <div class="container">
         <h1 class="title">Get your API key</h1>
-        <h2 class="subtitle">Anyone with this API key can control this server as they wish, bypassing login, yellow. Keep it a secret.</h2>
-        <button onclick="alert('Read the warning!')" class="button is-danger is-small">Copy</button>
+        <h2 class="subtitle">Anyone with this API key can control this server as they wish, bypassing login. Keep it a secret.</h2>
         <button onclick="copyAPIToken()" class="button is-warning is-small">Copy</button>
-        <button onclick="alert('Read the warning!')"class="button is-info is-small">Copy</button>
-        <button onclick="alert('Read the warning!')"class="button is-link is-small">Copy</button>
-        <button onclick="alert('Read the warning!')"class="button is-success is-small">Copy</button>
+        <a class="button is-info is-small is-loading" download="Ultrashare_SXCUs.zip">Download SCXUs for ShareX</a>
         <input style="opacity: 0;pointer-events: none;" type="text"></input>
         <audio src="/Copy.mp3"></audio>
     </div>
+    <script src="jszip.min.js"></script>
     <script>
         function copyAPIToken() {
             document.querySelector("input").value = localStorage.getItem("apikey")
@@ -73,6 +71,53 @@
             document.querySelector("audio").play()
             document.execCommand("copy")
         }
+        var zip = new JSZip();
+        zip.file("Ultrashare - Files.sxcu", JSON.stringify({
+            "Version": "12.4.1",
+            "Name": "Ultrashare - Files",
+            "DestinationType": "ImageUploader, FileUploader",
+            "RequestMethod": "POST",
+            "RequestURL": location.origin + "/api/upload",
+            "Headers": {
+                "Authorization": localStorage.getItem("apikey"),
+                "fileext": "$filename$"
+            },
+            "Body": "Binary",
+            "URL": "$json:url$"
+        }));
+        zip.file("Ultrashare - Shorten.sxcu", JSON.stringify({
+            "Version": "12.4.1",
+            "Name": "Ultrashare - Shorten",
+            "DestinationType": "URLShortener",
+            "RequestMethod": "POST",
+            "RequestURL": location.origin + "api/Shorten",
+            "Headers": {
+                "Authorization": localStorage.getItem("apikey"),
+            },
+            "Body": "JSON",
+            "Data": "$input$",
+            "URL": "$json:url$"
+        }));
+        zip.file("Ultrashare - Text.sxcu", JSON.stringify({
+            "Version": "12.4.1",
+            "Name": "Ultrashare - Text",
+            "DestinationType": "TextUploader",
+            "RequestMethod": "POST",
+            "RequestURL": location.origin + "/api/upload",
+            "Headers": {
+                "Authorization": localStorage.getItem("apikey"),
+                "fileext": "paste"
+            },
+            "Body": "JSON",
+            "Data": "$input$",
+            "URL": "$json:url$"
+        }));
+        zip.generateAsync({type:"blob"})
+        .then(function(content) {
+            document.querySelector(".is-info").href = URL.createObjectURL(content);
+            document.querySelector(".is-info").classList.remove("is-loading")
+        });
+        
     </script>
     <script src="dash.js"></script>
 </body>

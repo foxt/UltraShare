@@ -127,19 +127,23 @@ module.exports = function(app) {
         var auth = req.header("Authorization")
         if (global.config.apiKey == auth) {
             var id = getID(req)
-            var stream = fs.createWriteStream("./files/" + id + "." + req.header("fileext"))
+            var ext = req.header("fileext")
+            if (ext.includes(".")) {
+                ext = ext.split(".")[1]
+            }
+            var stream = fs.createWriteStream("./files/" + id + "." + ext)
             req.pipe(stream)
             req.on("end", function() {
                 global.db.add({
                     type:"file",
                     id:id,
-                    file:id + "." + req.header("fileext"),
+                    file:id + "." + ext,
                     date: new Date(),
                     ua:req.header("User-Agent")})
                 global.db.save()
                 res.send(JSON.stringify({
                     id: id,
-                    url: req.protocol + "://" + req.header("Host") + "/" + id + "." + req.header("fileext")
+                    url: req.protocol + "://" + req.header("Host") + "/" + id + "." + ext
                 }))
             })
         } else {
