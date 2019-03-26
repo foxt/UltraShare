@@ -4,7 +4,7 @@
     <title>UltraShare Dashboard</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/css/bulma.min.css"></link>
-    <link rel="stylesheet" href="dash.css"></link>
+    <link rel="stylesheet" href="../dash.css"></link>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -32,12 +32,12 @@
                         <a class="navbar-item" href="/dash/upload">
                             Upload file
                         </a>
-                        <a class="navbar-item" href="/dash/paste">
+                        <a class="navbar-item is-active" href="/dash/paste">
                             Paste
                         </a>
                     </div>
                 </div>
-                <a class="navbar-item is-active" href="/dash/apikey.html">
+                <a class="navbar-item" href="/dash/apikey.html">
                     Get your API key
                 </a>
             </div>
@@ -55,25 +55,43 @@
     </nav>
     
     
-    <div class="container">
-        <h1 class="title">Get your API key</h1>
-        <h2 class="subtitle">Anyone with this API key can control this server as they wish, bypassing login, yellow. Keep it a secret.</h2>
-        <button onclick="alert('Read the warning!')" class="button is-danger is-small">Copy</button>
-        <button onclick="copyAPIToken()" class="button is-warning is-small">Copy</button>
-        <button onclick="alert('Read the warning!')"class="button is-info is-small">Copy</button>
-        <button onclick="alert('Read the warning!')"class="button is-link is-small">Copy</button>
-        <button onclick="alert('Read the warning!')"class="button is-success is-small">Copy</button>
-        <input style="opacity: 0;pointer-events: none;" type="text"></input>
+    <section class="hero is-primary is-fullheight is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h1>Pastebin</h1>
+                <textarea class="textarea" placeholder="Paste some code here"></textarea>
+                <button class="button is-info" onclick="paste()">Submit</button>
+            </div>
+        </div>
         <audio src="/Copy.mp3"></audio>
-    </div>
+    </section>
+    
+    <style>
+        h1 {
+            font-size: 400%;
+        }
+    </style>
     <script>
-        function copyAPIToken() {
-            document.querySelector("input").value = localStorage.getItem("apikey")
-            document.querySelector("input").select()
-            document.querySelector("audio").play()
-            document.execCommand("copy")
+        async function paste() {
+            var ftch = await fetch("/api/upload", {
+                method: "POST",
+                headers: {
+                    Authorization: window.localStorage.getItem("apikey"),
+                    fileext: "paste"
+                },
+                body: document.querySelector("textarea").value
+            })
+            if (ftch.status ==  200){
+                var j = await ftch.json()
+                document.querySelector("textarea").value = j.url
+                document.querySelector("textarea").select()
+                document.querySelector("audio").play()
+                document.execCommand("copy")
+            } else {
+                location.replace("/login.html")
+            }
         }
     </script>
-    <script src="dash.js"></script>
+    <script src="../dash.js"></script>
 </body>
 </html>

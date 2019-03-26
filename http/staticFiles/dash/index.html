@@ -32,6 +32,9 @@
                         <a class="navbar-item" href="/dash/upload">
                             Upload file
                         </a>
+                        <a class="navbar-item" href="/dash/paste">
+                            Paste
+                        </a>
                     </div>
                 </div>
                 <a class="navbar-item" href="/dash/apikey.html">
@@ -131,17 +134,19 @@
         function makeUpload(upload) {
             try {
                 var trailer = ""
+                var filetype = ""
                 if (upload.type == "file") {
                     trailer = `(${upload.file.split(".")[1]})`
+                    filetype = `.${upload.file.split(".")[1]}`
                 } else if (upload.type = "link") {
                     trailer = `(${new URL(upload.redir).hostname})`
                 }
                 return `<tr>
                     <th>${makeNoun(upload.type)} ${trailer}</th>
-                    <td><a href="/${upload.id}">${upload.id}</a></td>
+                    <td><a href="/${upload.id}${filetype}">${upload.id}</a></td>
                     <td><abbr title="${new Date(upload.date)}">${moment(upload.date).fromNow()}</abbr></td>
                     <td>${parseUA(upload.ua)}</td>
-                    <td><a href="javascript:preview('${upload.id}')" class="button is-primary">Preview</a>
+                    <td><a href="javascript:preview('${upload.id}${filetype}')" class="button is-primary">Preview</a>
                         <a href="javascript:changeID('${upload.id}')" class="button is-warning">Change URL</a>
                         <a href="javascript:deleteItem('${upload.id}')" class="button is-danger">Delete</a></td>
                 </tr>`
