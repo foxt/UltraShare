@@ -2,7 +2,7 @@
 UltraShare is a all in one server for screenshots, files, images, and links
 
 ## Live Demo
-*Coming soon*
+https://ultrashare-public-demo--thelmgn.repl.co
 
 ## Setup Guide
 
