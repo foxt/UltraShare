@@ -60,6 +60,7 @@
         <h2 class="subtitle">Anyone with this API key can control this server as they wish, bypassing login. Keep it a secret.</h2>
         <button onclick="copyAPIToken()" class="button is-warning is-small">Copy</button>
         <a class="button is-info is-small is-loading" download="Ultrashare_SXCUs.zip">Download SCXUs for ShareX</a>
+        <a class="button is-success is-small is-loading" download="Ultrashare.mconf">Download MagicCap export</a>
         <input style="opacity: 0;pointer-events: none;" type="text"></input>
         <audio src="/Copy.mp3"></audio>
     </div>
@@ -117,7 +118,21 @@
             document.querySelector(".is-info").href = URL.createObjectURL(content);
             document.querySelector(".is-info").classList.remove("is-loading")
         });
-        
+
+        async function mconf() {
+            var blob = new Blob([JSON.stringify({
+                "version": 1,
+                "config_items": {
+                    "ultra_key": localStorage.getItem("apikey"),
+                    "ultra_domain": location.host,
+                    "ultra_https": false
+                }
+            })], {type: 'application/json+mconf'}); // pass a useful mime type here
+            var url = URL.createObjectURL(blob);
+            document.querySelector(".is-success").href = url
+            document.querySelector(".is-success").classList.remove("is-loading")
+        }
+        mconf()
     </script>
     <script src="dash.js"></script>
 </body>
