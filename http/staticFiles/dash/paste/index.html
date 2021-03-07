@@ -72,6 +72,32 @@
         }
     </style>
     <script>
+        function fallbackCopyTextToClipboard(text) {
+  var textArea = document.querySelector("textarea");
+
+  try {
+    var successful = document.execCommand('copy');
+    if (successful) {document.querySelector("audio").play()}
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    console.log('Async: Copying to clipboard was successful!');
+    document.querySelector("audio").play()
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
         async function paste() {
             var ftch = await fetch("/api/upload", {
                 method: "POST",
@@ -86,7 +112,7 @@
                 document.querySelector("textarea").value = j.url
                 document.querySelector("textarea").select()
                 document.querySelector("audio").play()
-                document.execCommand("copy")
+                copyTextToClipboard(j.url)
             } else {
                 location.replace("/login.html")
             }
