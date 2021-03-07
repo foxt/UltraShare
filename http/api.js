@@ -58,7 +58,7 @@ module.exports = function(app) {
     })
     app.get("/api/getUsername", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
-        var auth = req.header("Authorization")
+        var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.send(global.config.username)
         } else {
@@ -69,7 +69,7 @@ module.exports = function(app) {
 
     app.get("/api/get", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
-        var auth = req.header("Authorization")
+        var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
             res.send(JSON.stringify(global.db.get({})))
@@ -80,7 +80,7 @@ module.exports = function(app) {
     })
     app.get("/api/delete/:id", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
-        var auth = req.header("Authorization")
+        var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
             var item = global.db.get({id: req.params.id})
@@ -104,7 +104,7 @@ module.exports = function(app) {
     })
     app.get("/api/change/:id/:newid", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
-        var auth = req.header("Authorization")
+        var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
             var item = global.db.get({id: req.params.id})
@@ -124,7 +124,7 @@ module.exports = function(app) {
     })
     app.post("/api/upload", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
-        var auth = req.header("Authorization")
+        var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             var id = getID(req)
             var ext = req.header("fileext")
@@ -153,7 +153,7 @@ module.exports = function(app) {
     })
     app.post("/api/shorten", function(req,res) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
-        var auth = req.header("Authorization")
+        var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             var id = getID(req)
             var link = ""
