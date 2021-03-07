@@ -15,11 +15,12 @@ https://ultrashare-public-demo--thelmgn.repl.co
 7. Create a file called `db.json` and in it put `[]`
 8. Fingers crossed, if you do `node index` it should work.
 
-## MagicCap setup guide
+## MagicCap or ShareX setup guide
 
-1. Grab your API key
-2. Update MagicCap to a post-1.0.0 version.
-3. Uploader Config > UltraShare
-4. Set as default
-5. Domain is a link to your server (ex: ultrashare.example.org:8080)
-6. API Key is your API key
+1. Go to your UltraShare dashboard, and click "Get your API key", or visit yourserver.com/dash/apikey.html
+2. Download the MagicCap mconf or ShareX SXCU's.
+3. For ShareX, extract the zip and open the files with ShareX.
+4. For MagicCap, open the config, click "Uploader Config", then "Import Uploader Configurations", then select the file.
+5. Also for MagicCap, click "UltraShare" and click "Set as default"
+6. Congratulations, you've set up UltraShare for instantly uploading your screenshots!
+

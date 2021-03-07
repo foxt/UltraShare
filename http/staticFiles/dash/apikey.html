@@ -78,7 +78,7 @@
             "Name": "Ultrashare - Files",
             "DestinationType": "ImageUploader, FileUploader",
             "RequestMethod": "POST",
-            "RequestURL": location.origin + "/api/upload",
+            "RequestURL": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
             "Headers": {
                 "Authorization": localStorage.getItem("apikey"),
                 "fileext": "$filename$"
@@ -91,9 +91,9 @@
             "Name": "Ultrashare - Shorten",
             "DestinationType": "URLShortener",
             "RequestMethod": "POST",
-            "RequestURL": location.origin + "api/Shorten",
+            "RequestURL": location.origin + "api/shorten",
             "Headers": {
-                "Authorization": localStorage.getItem("apikey"),
+                "Authorization": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
             },
             "Body": "JSON",
             "Data": "$input$",
@@ -106,7 +106,7 @@
             "RequestMethod": "POST",
             "RequestURL": location.origin + "/api/upload",
             "Headers": {
-                "Authorization": localStorage.getItem("apikey"),
+                "Authorization": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
                 "fileext": "paste"
             },
             "Body": "JSON",
