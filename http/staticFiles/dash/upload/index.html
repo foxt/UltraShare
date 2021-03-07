@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
+<body ondrop="handleDrop(event)" ondragover="event.preventDefault();">
     <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <strong>UltraShare</strong>
@@ -56,7 +56,7 @@
     
     
     <section class="hero is-primary is-fullheight is-bold">
-        <div class="hero-body">
+        <div class="hero-body" >
             <div class="container">
                 <h1>Upload a file</h1>
                 <div class="file is-boxed is-info has-name is-large">
@@ -75,6 +75,7 @@
                         </input>
                     </label>
                 </div>
+                Dragging & dropping is supported, or press Ctrl+V to paste an image.
             </div>
         </div>
         <audio src="/Copy.mp3"></audio>
@@ -87,38 +88,86 @@
     </style>
     
     <script>
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.querySelector(".file-name");
+
+  try {
+    var successful = document.execCommand('copy');
+    if (successful) {document.querySelector("audio").play()}
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    console.log('Async: Copying to clipboard was successful!');
+    document.querySelector("audio").play()
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
+
+        function uploadFile(f) {
+            var r = new FileReader();
+            r.onload = async function(e) { 
+                var contents = e.target.result;
+                document.querySelector(".file-name").value = "Uploading " + f.name
+                var ftch = await fetch("/api/upload", {
+                    method: "POST",
+                    headers: {
+                        Authorization: window.localStorage.getItem("apikey"),
+                        fileext: f.name.split(".").pop() || f.name
+                    },
+                    body: contents
+                })
+                if (ftch.status ==  200){
+                    var j = await ftch.json()
+                    document.querySelector(".file-name").value = j.url
+                    document.querySelector(".file-name").select()
+                    copyTextToClipboard(j.url)
+                    
+                } else {
+                    location.replace("/login.html")
+                }
+            }
+            r.readAsArrayBuffer(f);
+        }
+        
         var file = document.getElementById("file");
         file.onchange = async function(){
             var f = file.files[0]
             if(f) {
                 file.disabled = true
                 document.querySelector(".file-name").value = "Reading " + f.name
-                var r = new FileReader();
-                r.onload = async function(e) { 
-                    var contents = e.target.result;
-                    document.querySelector(".file-name").value = "Uploading " + f.name
-                    var ftch = await fetch("/api/upload", {
-                        method: "POST",
-                        headers: {
-                            Authorization: window.localStorage.getItem("apikey"),
-                            fileext: f.name.split(".")[1]
-                        },
-                        body: contents
-                    })
-                    if (ftch.status ==  200){
-                        var j = await ftch.json()
-                        document.querySelector(".file-name").value = j.url
-                        document.querySelector(".file-name").select()
-                        document.querySelector("audio").play()
-                        document.execCommand("copy")
-                    } else {
-                        location.replace("/login.html")
-                    }
-                }
-                r.readAsArrayBuffer(f);
+                uploadFile(f)
             }
             file.disabled = false
         };
+        // window.addEventListener('paste', ... or
+        document.onpaste = function(event){
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            var i = items[0]
+            var f = i.getAsFile()
+            console.log(f)
+            uploadFile(f)
+        }
+        function handleDrop(ev) {
+            console.log('File(s) dropped');
+
+            // Prevent default behavior (Prevent file from being opened)
+            ev.preventDefault();
+
+            var f = ev.dataTransfer.items[0].getAsFile()
+            uploadFile(f)
+        }
     </script>
     <script src="../dash.js"></script>
 </body>

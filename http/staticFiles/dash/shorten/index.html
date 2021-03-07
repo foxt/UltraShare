@@ -81,6 +81,32 @@
     </style>
         
     <script>
+        function fallbackCopyTextToClipboard(text) {
+  var textArea = document.querySelector("#linkbox");
+
+  try {
+    var successful = document.execCommand('copy');
+    if (successful) {document.querySelector("audio").play()}
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    console.log('Async: Copying to clipboard was successful!');
+    document.querySelector("audio").play()
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
         async function shorten() {
             document.querySelector("button").className = "button is-info is-large is-loading"
             var value = document.querySelector("#linkbox").value
@@ -89,8 +115,7 @@
                 var j = JSON.parse(fetch)
                 document.querySelector("#linkbox").value = j.url
                 document.querySelector("#linkbox").select();
-                document.querySelector("audio").play()
-                document.execCommand("copy");
+                copyTextToClipboard(j.url)
             } else {
                 document.querySelector("#linkbox").value = "Invalid URL!"
                 setTimeout(function() {
