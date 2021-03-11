@@ -99,7 +99,7 @@ function copyTextToClipboard(text) {
   });
 }
         async function paste() {
-            var ftch = await fetch("/api/upload", {
+            var ftch = await fetch("/api/files/upload", {
                 method: "POST",
                 headers: {
                     Authorization: window.localStorage.getItem("apikey"),

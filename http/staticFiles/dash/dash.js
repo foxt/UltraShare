@@ -6,10 +6,11 @@ async function makeAPIRequest(method,ep,data) {
         },
         body: data
     })
-    if (ftch.status ==  200){
+    if (ftch.ok){
         return await ftch.text()
     } else {
-        location.replace("/login.html")
+        alert(await ftch.text())
+        return location.replace("/login.html")
     }
 }
 async function main() {

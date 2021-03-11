@@ -73,20 +73,7 @@
             </thead>
             
             <tbody id="uploads">
-                <tr>
-                    <th>Link (google.com)</th>
-                    <td><a href="/google">google</a></td>
-                    <td class="fuzzydate" data-date="2019-03-24T22:24:04.025Z">21 hours ago</td>
-                    <td>Insomnia</td>
-                    <td><a href="javascript:changeID('google')" class="button is-warning">Change URL</a> <a href="javascript:delete('google')" class="button is-danger">Delete</a></td>
-                </tr>
-                <tr>
-                    <th>File (png)</th>
-                    <td><a href="/abc.png">abc</a></td>
-                    <td class="fuzzydate" data-date="2019-03-25T18:59:41.914Z">5 minutes ago</td>
-                    <td>Insomnia</td>
-                    <td><a href="javascript:changeID('abc')" class="button is-warning">Change URL</a> <a href="javascript:delete('abc')" class="button is-danger">Delete</a></td>
-                </tr>
+                
                 
             </tbody>
         </table>
@@ -117,6 +104,7 @@
         function parseUA(ua) {
             // Uploaders
             if (ua.toLowerCase().includes("magiccap")) {return "MagicCap"}
+            if (ua.toLowerCase().includes("sharex")) {return ua.replace("/"," ")}
 
             // Browsers
             // Chrome
@@ -134,16 +122,28 @@
         }
         function makeUpload(upload) {
             try {
-                var trailer = ""
+                var type = ""
                 var filetype = ""
                 if (upload.type == "file") {
-                    trailer = `(${upload.file.split(".")[1]})`
-                    filetype = `.${upload.file.split(".")[1]}`
+                    var ft = upload.file.split(".").pop()
+                    type = `File (${ft})`
+                    // this is a hack
+                    // can't think of an better way
+                    if (ft == "paste") {
+                        type = "Paste"
+                    } else if (ft == "png" || ft == "jpg" || ft == "jpeg" || ft == "gif" || ft == "webp" || ft == "bmp") {
+                        type = ft.toUpperCase() + " Image"
+                    } else if (ft == "mp4" || ft == "webm" || ft == "avi" || ft == "mov" || ft == "mkv" || ft == "ogv") {
+                        type = ft.toUpperCase() + " Video"
+                    } else if (ft == "mp3" || ft == "wav" || ft == "ogg" || ft == "m4a" || ft == "m4r" || ft == "caf") {
+                        type = ft.toUpperCase() + " Audio"
+                    }
+                    filetype = `.${ft}}`
                 } else if (upload.type = "link") {
-                    trailer = `(${new URL(upload.redir).hostname})`
+                    type = `Link (${new URL(upload.redir).hostname})`
                 }
                 return `<tr>
-                    <th>${makeNoun(upload.type)} ${trailer}</th>
+                    <th>${type}</th>
                     <td><a href="/${upload.id}${filetype}">${upload.id}</a></td>
                     <td><abbr title="${new Date(upload.date)}">${moment(upload.date).fromNow()}</abbr></td>
                     <td>${parseUA(upload.ua)}</td>
@@ -162,34 +162,28 @@
         }
         async function deleteItem(id) {
             if (confirm("Really delete " + id + "?")) {
-                var response = await makeAPIRequest("GET","/api/delete/" + id)
-                if (response.startsWith("ok!")) {
-                    pageMain()
-                } else {
-                    alert(response)
-                }
+                var response = await makeAPIRequest("DELETE","/api/files/" + id)
+                pageMain()
             }
         }
         async function changeID(id) {
             var newid = prompt("Enter a new URL for " + id)
             if (newid && newid.length > 1) {
-                var response = await makeAPIRequest("GET","/api/change/" + id + "/" + newid)
-                if (response.startsWith("ok!")) {
-                    pageMain()
-                } else {
-                    alert(response)
-                }
+                var response = await makeAPIRequest("PATCH","/api/files/" + id,newid)
+                pageMain()
             }
         }
         async function pageMain() {
-            uploads = JSON.parse(await makeAPIRequest("GET", "/api/get"))
-            if (!uploads.length) {
+            uploads = JSON.parse(await makeAPIRequest("GET", "/api/files"))
+            if (!uploads) {
+                document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">0</strong> items`
+                uploads = []
+            } else if (!uploads.length) {
                 uploads = [uploads]
                 document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">1</strong> item`
             } else {
-                document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">123</strong> items`
+                document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">${uploads.length}</strong> items`
             }
-            document.querySelector("#itemCount").innerText = uploads.length
             uploads = uploads.sort(function(a, b) {
                 a = new Date(a.date);
                 b = new Date(b.date);

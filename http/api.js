@@ -3,6 +3,8 @@ const speakeasy = require("speakeasy")
 const rateLimit = require("express-rate-limit")
 
 const allowedCharsRegex =new RegExp("^[" + global.config.fileName.allowedChars + "]+$")
+var invalidNames= ["shorten","upload","api"]
+
 
 function randomString(length, chars) {
     var result = '';
@@ -10,9 +12,9 @@ function randomString(length, chars) {
     return result;
 }
 function getID(req) {
-    if (req.header("id") && !allowedCharsRegex.test(req.header("id").toString())) {
-        if (!global.fileDB.get({id: req.header("id")})) {
-            return req.header("id")
+    if (req.params.id && !invalidNames.includes(req.params.id.toLowerCase()) && !allowedCharsRegex.test(req.params.id.toString())) {
+        if (!global.fileDB.get({id: req.params.id})) {
+            return req.params.id
         }
     }
     while (true) {
@@ -28,7 +30,7 @@ module.exports = function(app) {
         windowMs: 60 * 1000, 
         max: 60,
         message:
-            "Slow down there, bucko! You can only send 60 API requests a minute."
+            "Slow down there! You can only send 60 API requests a minute."
     }));
     app.post("/api/login", rateLimit({
         windowMs: 15 * 60 * 1000, 
@@ -67,8 +69,8 @@ module.exports = function(app) {
         }
     })
 
-    app.get("/api/get", function(req,res) {
-        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+    app.get("/api/files", function(req,res) {
+        console.log("[API_LISTITEMS]",req.ip, req.url, req.header("User-Agent"))
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
@@ -78,8 +80,8 @@ module.exports = function(app) {
             res.send("invalid api key")
         }
     })
-    app.get("/api/delete/:id", function(req,res) {
-        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+    app.delete("/api/files/:id", function(req,res) {
+        console.log("[API_DELETE]",req.ip, req.url, req.header("User-Agent"))
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
@@ -102,31 +104,38 @@ module.exports = function(app) {
             res.send("invalid api key")
         }
     })
-    app.get("/api/change/:id/:newid", function(req,res) {
-        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+    app.patch("/api/files/:id", function(req,res) {
+        console.log("[API_CHANGE]",req.ip, req.url, req.header("User-Agent"))
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
-            if (!allowedCharsRegex.test(req.params.newid.toString())) {
-                 res.status(400)
-                 return res.send("invalid characters in url, allowed characters: " + global.config.fileName.allowedChars)
-            }
-            var item = global.fileDB.get({id: req.params.id})
-            var itemNew = global.fileDB.get({id: req.params.newid})
-            if (item && !itemNew) {
-                global.fileDB.update(item,{id: req.params.newid})
-                global.fileDB.save()
-                res.send("ok! " + req.params.id + " is now " + req.params.newid)
-            } else {
-                res.status(404)
-                res.send("not found, or new id is taken")
-            }
+            var newid = ""
+            req.on("data", function(d) {
+                newid += d.toString()
+            })
+            req.on("end", function() {
+                if (!allowedCharsRegex.test(newid) && invalidNames.includes(newid.toLowerCase())) {
+                    res.status(400)
+                    return res.send("invalid characters in url, allowed characters: " + global.config.fileName.allowedChars)
+               }
+               var item = global.fileDB.get({id: req.params.id})
+               var itemNew = global.fileDB.get({id:newid})
+               if (item && !itemNew) {
+                   global.fileDB.update(item,{id: newid})
+                   global.fileDB.save()
+                   res.send("ok! " + req.params.id + " is now " + newid)
+               } else {
+                   res.status(item ? 404 : 409)
+                   res.send(item ? "not found" : "new id is taken")
+               }
+            })
+            
         } else {
             res.status(401)
             res.send("invalid api key")
         }
     })
-    app.post("/api/upload", function(req,res) {
-        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+    function uploadHandler(req,res) {
+        console.log("[API_UPLOAD]",req.ip, req.url, req.header("User-Agent"))
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             var id = getID(req)
@@ -144,18 +153,22 @@ module.exports = function(app) {
                     date: new Date(),
                     ua:req.header("User-Agent")})
                 global.fileDB.save()
+                
                 res.send(JSON.stringify({
                     id: id,
-                    url: req.protocol + "://" + req.header("Host") + "/" + id + "." + ext
+                    url: req.protocol + "://" + req.header("Host") + "/" + id + "." + ext + (req.url == "/api/upload" ? "#depreciated_upload_endpoint" : "")
                 }))
             })
         } else {
             res.status(401)
             res.send("invalid api key")
         }
-    })
-    app.post("/api/shorten", function(req,res) {
-        console.log("[API]",req.ip, req.url, req.header("User-Agent"))
+    }
+    app.post("/api/files/:id", uploadHandler)
+    app.post("/api/files", uploadHandler)
+    app.post("/api/upload", uploadHandler)
+    function shortenHandler(req,res) {
+        console.log("[API_SHORTEN]",req.ip, req.url, req.header("User-Agent"))
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             var id = getID(req)
@@ -180,7 +193,9 @@ module.exports = function(app) {
             res.status(401)
             res.send("invalid api key")
         }
-    })
+    }
+    app.post("/api/shorten/:id", shortenHandler)
+    app.post("/api/shorten", shortenHandler)
     app.get("/api/brew", function(req,res) {
         res.status(418)
         res.send("I'm a teapot.")

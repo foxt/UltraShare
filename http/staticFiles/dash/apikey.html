@@ -78,9 +78,9 @@
             "Name": "Ultrashare - Files",
             "DestinationType": "ImageUploader, FileUploader",
             "RequestMethod": "POST",
-            "RequestURL": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
+            "RequestURL": location.origin + "/api/files/upload",
             "Headers": {
-                "Authorization": localStorage.getItem("apikey"),
+                "Authorization": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
                 "fileext": "$filename$"
             },
             "Body": "Binary",
@@ -104,7 +104,7 @@
             "Name": "Ultrashare - Text",
             "DestinationType": "TextUploader",
             "RequestMethod": "POST",
-            "RequestURL": location.origin + "/api/upload",
+            "RequestURL": location.origin + "/api/files/upload",
             "Headers": {
                 "Authorization": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
                 "fileext": "paste"

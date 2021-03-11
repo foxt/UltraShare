@@ -120,7 +120,7 @@ function copyTextToClipboard(text) {
             r.onload = async function(e) { 
                 var contents = e.target.result;
                 document.querySelector(".file-name").value = "Uploading " + f.name
-                var ftch = await fetch("/api/upload", {
+                var ftch = await fetch("/api/files/", {
                     method: "POST",
                     headers: {
                         Authorization: window.localStorage.getItem("apikey"),
