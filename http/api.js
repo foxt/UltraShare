@@ -2,7 +2,7 @@ const fs = require("fs")
 const speakeasy = require("speakeasy")
 const rateLimit = require("express-rate-limit")
 
-const allowedCharsRegex = new RegExp(global.config.filename.allowedChars)
+const allowedCharsRegex =new RegExp("^[" + global.config.fileName.allowedChars + "]+$")
 
 function randomString(length, chars) {
     var result = '';
@@ -10,7 +10,7 @@ function randomString(length, chars) {
     return result;
 }
 function getID(req) {
-    if (req.header("id") && allowedCharsRegex.match(req.header("id").toString()) {
+    if (req.header("id") && !allowedCharsRegex.test(req.header("id").toString())) {
         if (!global.fileDB.get({id: req.header("id")})) {
             return req.header("id")
         }
@@ -106,7 +106,10 @@ module.exports = function(app) {
         console.log("[API]",req.ip, req.url, req.header("User-Agent"))
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
-            res.set({"Content-Type": "application/json"}) 
+            if (!allowedCharsRegex.test(req.params.newid.toString())) {
+                 res.status(400)
+                 return res.send("invalid characters in url, allowed characters: " + global.config.fileName.allowedChars)
+            }
             var item = global.fileDB.get({id: req.params.id})
             var itemNew = global.fileDB.get({id: req.params.newid})
             if (item && !itemNew) {
