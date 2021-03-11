@@ -2,25 +2,25 @@ const fs = require("fs")
 const speakeasy = require("speakeasy")
 const rateLimit = require("express-rate-limit")
 
+const allowedCharsRegex = new RegExp(global.config.filename.allowedChars)
+
 function randomString(length, chars) {
     var result = '';
     for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
     return result;
 }
 function getID(req) {
-    var id = ""
+    if (req.header("id") && allowedCharsRegex.match(req.header("id").toString()) {
+        if (!global.fileDB.get({id: req.header("id")})) {
+            return req.header("id")
+        }
+    }
     while (true) {
         id = randomString(global.config.fileName.length,global.config.fileName.allowedChars)
-        if (!global.db.get({id: id})) {
-            break
+        if (!global.fileDB.get({id: id})) {
+            return id
         }
     }
-    if (req.header("id")) {
-        if (!global.db.get({id: req.header("id")})) {
-            id = req.header("id")
-        }
-    }
-    return id
 }
 
 module.exports = function(app) {
@@ -72,7 +72,7 @@ module.exports = function(app) {
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
-            res.send(JSON.stringify(global.db.get({})))
+            res.send(JSON.stringify(global.fileDB.get({})))
         } else {
             res.status(401)
             res.send("invalid api key")
@@ -83,15 +83,15 @@ module.exports = function(app) {
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
-            var item = global.db.get({id: req.params.id})
+            var item = global.fileDB.get({id: req.params.id})
             if (item) {
-                global.db.remove(item)
+                global.fileDB.remove(item)
                 if(item.file) {
                     try {
                         fs.unlinkSync("./files/" + item.file)
                     } catch(e){}
                 }
-                global.db.save()
+                global.fileDB.save()
                 res.send("ok! deleted file with id " + item.id)
             } else {
                 res.status(404)
@@ -107,11 +107,11 @@ module.exports = function(app) {
         var auth = req.header("Authorization") || req.header("authorization")
         if (global.config.apiKey == auth) {
             res.set({"Content-Type": "application/json"}) 
-            var item = global.db.get({id: req.params.id})
-            var itemNew = global.db.get({id: req.params.newid})
+            var item = global.fileDB.get({id: req.params.id})
+            var itemNew = global.fileDB.get({id: req.params.newid})
             if (item && !itemNew) {
-                global.db.update(item,{id: req.params.newid})
-                global.db.save()
+                global.fileDB.update(item,{id: req.params.newid})
+                global.fileDB.save()
                 res.send("ok! " + req.params.id + " is now " + req.params.newid)
             } else {
                 res.status(404)
@@ -134,13 +134,13 @@ module.exports = function(app) {
             var stream = fs.createWriteStream("./files/" + id + "." + ext)
             req.pipe(stream)
             req.on("end", function() {
-                global.db.add({
+                global.fileDB.add({
                     type:"file",
                     id:id,
                     file:id + "." + ext,
                     date: new Date(),
                     ua:req.header("User-Agent")})
-                global.db.save()
+                global.fileDB.save()
                 res.send(JSON.stringify({
                     id: id,
                     url: req.protocol + "://" + req.header("Host") + "/" + id + "." + ext
@@ -161,13 +161,13 @@ module.exports = function(app) {
                 link += d
             })
             req.on("end", function() {
-                global.db.add({
+                global.fileDB.add({
                     type:"link",
                     id:id,
                     redir:link,
                     date: new Date(),
                     ua:req.header("User-Agent")})
-                global.db.save()
+                global.fileDB.save()
                 res.send(JSON.stringify({
                     id: id,
                     url: req.protocol + "://" + req.header("Host") + "/" + id

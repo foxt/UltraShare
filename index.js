@@ -1,11 +1,19 @@
 
 const Express = require('express')
-const db = global.db = require("./db");
+const DB = require("./db");
 const config = global.config = require("./config")
 const path = require("path")
-const ejs = require('ejs')
+const ejs = require('ejs');
+const fs = require('fs');
 
 const app = Express()
+
+if (!fs.existsSync("./db/")) {
+    fs.mkdirSync("./db")
+    if (fs.existsSync("./db.json")) fs.renameSync("./db.json","./db/files.json")
+}
+
+const fileDB = global.fileDB = new DB("./db/files.json")
 
 require("./http/api")(app)
 

@@ -1,14 +1,17 @@
 const fs = require("fs")
 
-var db = []
-console.log("[DB] initial load")
-db = JSON.parse(fs.readFileSync("./db.json"))
 
-module.exports = {
-    get db() {return db},
-    get: function(where) {
+class JsonDatabase {
+    db = []
+    constructor(filename) {
+        this.db = []
+        this.filename = filename
+        console.log("[DB] initial load ",filename)
+        this.db = JSON.parse(fs.readFileSync(filename))
+    }
+    get(where) {
         var returns = []
-        for (var e of db) {
+        for (var e of this.db) {
             var match = true
             for (var prop in where) {
                 if (e[prop] != where[prop]) {
@@ -23,9 +26,9 @@ module.exports = {
             return returns[0]
         }
         return returns
-    },
-    update: function(where,change) {
-        for (var e of db) {
+    }
+    update(where,change) {
+        for (var e of this.db) {
             var match = true
             for (var prop in where) {
                 if (e[prop] != where[prop]) {
@@ -38,13 +41,13 @@ module.exports = {
                 }
             }
         }
-    },
-    add: function(newe) {
-        db.push(newe)
-    },
-    remove: function(where) {
+    }
+    add(newe) {
+        this.db.push(newe)
+    }
+    remove(where) {
         var neww = []
-        for (var e of db) {
+        for (var e of this.db) {
             var match = true
             for (var prop in where) {
                 if (e[prop] != where[prop]) {
@@ -55,16 +58,19 @@ module.exports = {
                 neww.push(e)
             }
         }
-        db = neww
-    },
-    reload: function() {
-        console.log("[DB] Reloading")
-        db = JSON.parse(fs.readFileSync("./db.json"))
+        this.db = neww
+    }
+    reload() {
+        console.log("[DB] Reloading from",this.filename)
+        this.db = JSON.parse(fs.readFileSync(this.filename))
         console.log("[DB]   Done")
-    },
-    save: function() {
-        console.log("[DB] Saving!")
-        fs.writeFileSync("./db.json", JSON.stringify(db))
+    }
+    save() {
+        console.log("[DB] Saving to",this.filename)
+        fs.writeFileSync(this.filename, JSON.stringify(this.db))
         console.log("[DB]   Done")
     }
 }
+
+
+module.exports = JsonDatabase

@@ -3,7 +3,7 @@ const fs = require("fs")
 module.exports = function(app) {
     app.use(async function(req,res,next) {
         var id = req.url.split("/")[1].split(".")[0]
-        var db = global.db.get({id: id})
+        var db = global.fileDB.get({id: id})
         if (db) {
             console.log("[DB]",req.ip, req.url, req.header("User-Agent"))
             if (db.type == "file") {
