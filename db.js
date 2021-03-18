@@ -7,7 +7,15 @@ class JsonDatabase {
         this.db = []
         this.filename = filename
         console.log("[DB] initial load ",filename)
-        this.db = JSON.parse(fs.readFileSync(filename))
+        try {
+            this.db = JSON.parse(fs.readFileSync(filename))
+        } catch(e) {
+            console.error("[DB] Failed to load ", filename)
+            if (fs.existsSync(filename)) {
+                process.exit()
+                throw new Error("Shutting down to prevent data loss")
+            }
+        }
     }
     get(where) {
         var returns = []

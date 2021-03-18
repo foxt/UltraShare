@@ -16,11 +16,11 @@
         
         <div id="navbarBasicExample" class="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item" href="/dash">
+                <a class="navbar-item" href="/dash" id="viewItemsLink">
                     View items
                 </a>
                 
-                <div class="navbar-item has-dropdown is-hoverable">
+                <div class="navbar-item has-dropdown is-hoverable" id='createItemLink'>
                     <a class="navbar-link">
                         Create item
                     </a>
@@ -37,7 +37,7 @@
                         </a>
                     </div>
                 </div>
-                <a class="navbar-item is-active" href="/dash/apikey.html">
+                <a class="navbar-item is-active" href="/dash/apikey.html" id="apiKeyLink">
                     Get your API key
                 </a>
             </div>
@@ -57,11 +57,27 @@
     
     <div class="container">
         <h1 class="title">Get your API key</h1>
-        <h2 class="subtitle">Anyone with this API key can control this server as they wish, bypassing login. Keep it a secret.</h2>
         <button onclick="copyAPIToken()" class="button is-warning is-small">Copy</button>
         <a class="button is-info is-small is-loading" download="Ultrashare_SXCUs.zip">Download SCXUs for ShareX</a>
         <a class="button is-success is-small is-loading" download="Ultrashare.mconf">Download MagicCap export</a>
         <input style="opacity: 0;pointer-events: none;" type="text"></input>
+        <table class="table is-striped is-fullwidth is-hoverable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Created by</th>
+                    <th>Date</th>
+                    <th>Permissions</th>
+                    <th>Last Used</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            
+            <tbody id="uploads">
+                
+                
+            </tbody>
+        </table>
         <audio src="/Copy.mp3"></audio>
     </div>
     <script src="jszip.min.js"></script>

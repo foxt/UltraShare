@@ -14,6 +14,7 @@ if (!fs.existsSync("./db/")) {
 }
 
 const fileDB = global.fileDB = new DB("./db/files.json")
+const apiKeyDB = global.apiKeyDB = new DB("./db/apikeys.json")
 
 require("./http/api")(app)
 

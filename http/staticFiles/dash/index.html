@@ -16,11 +16,11 @@
         
         <div id="navbarBasicExample" class="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item is-active" href="/dash">
+                <a class="navbar-item is-active" href="/dash" id="viewItemsLink">
                     View items
                 </a>
                 
-                <div class="navbar-item has-dropdown is-hoverable">
+                <div class="navbar-item has-dropdown is-hoverable" id='createItemLink'>
                     <a class="navbar-link">
                         Create item
                     </a>
@@ -37,7 +37,7 @@
                         </a>
                     </div>
                 </div>
-                <a class="navbar-item" href="/dash/apikey.html">
+                <a class="navbar-item" href="/dash/apikey.html" id="apiKeyLink">
                     Get your API key
                 </a>
             </div>
@@ -113,9 +113,14 @@
             if (ua.toLowerCase().includes("opera")) {return "Opera"}
             if (ua.toLowerCase().includes("brave")) {return "Brave"}
             if (ua.toLowerCase().includes("chrome")) {return "Chrome"}
+            
             // Other browsers
             if (ua.toLowerCase().includes("firefox")) {return "Firefox"}
             if (ua.toLowerCase().includes("trident")) {return "Internet Explorer"}
+            if (ua.toLowerCase().includes("iphone") ) {return "iPhone"}
+            if (ua.toLowerCase().includes("ipad") ) {return "iPad"}
+            if (ua.toLowerCase().includes("ipod") ) {return "iPod Touch"}
+            if (ua.toLowerCase().includes("safari")) {return "Safari"}
 
             // Others
             return makeNoun(ua.split("/")[0])
@@ -148,8 +153,8 @@
                     <td><abbr title="${new Date(upload.date)}">${moment(upload.date).fromNow()}</abbr></td>
                     <td>${parseUA(upload.ua)}</td>
                     <td><a href="javascript:preview('${upload.id}${filetype}')" class="button is-primary">Preview</a>
-                        <a href="javascript:changeID('${upload.id}')" class="button is-warning">Change URL</a>
-                        <a href="javascript:deleteItem('${upload.id}')" class="button is-danger">Delete</a></td>
+                        ${user.fileModify ? `<a href="javascript:changeID('${upload.id}')" class="button is-warning">Change URL</a>` : "" }
+                        ${user.fileDelete ? `<a href="javascript:deleteItem('${upload.id}')" class="button is-danger">Delete</a></td>` : "" }
                 </tr>`
              } catch(e){return `<tr>${e}</tr>`}
         }
@@ -174,6 +179,9 @@
             }
         }
         async function pageMain() {
+            if (!user.fileList) {
+                return document.querySelector(".itemCount").innerHTML = `You cannot list files. If you think this is a mistake, try logging out and back in, and if you still cannot list files, contact this instance's administrator.`
+            }
             uploads = JSON.parse(await makeAPIRequest("GET", "/api/files"))
             if (!uploads) {
                 document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">0</strong> items`

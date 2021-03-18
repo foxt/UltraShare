@@ -14,7 +14,11 @@ async function makeAPIRequest(method,ep,data) {
     }
 }
 async function main() {
-    username = await makeAPIRequest("GET", "/api/getUsername")
+    user = JSON.parse(await makeAPIRequest("GET", "/api"))
+    console.log(user)
+    document.querySelector('#createItemLink').style.display = user.fileCreate ? 'flex' : 'none'
+    document.querySelector('#viewItemsLink').style.display = user.fileList ? 'flex' : 'none'
+    document.querySelector('#apiKeyLink').style.display = user.accountManage ? 'flex' : 'none'
     try{pageMain()}catch(e){}
 }
 main()
