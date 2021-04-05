@@ -5,3 +5,16 @@
 .navbar-item.is-active {
     border-bottom: 2px solid #3273dc;
 }
+.material-icons {
+    user-select: none !important;
+}
+.navbar {
+    position: fixed;
+    width:100vw;
+    top:0;
+    background: #fffd;
+    box-shadow: 0px 0px 16px #fffd;
+}
+.container {
+    margin-top: 60px;
+}

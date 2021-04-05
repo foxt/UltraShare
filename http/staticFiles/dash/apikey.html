@@ -38,14 +38,14 @@
                     </div>
                 </div>
                 <a class="navbar-item is-active" href="/dash/apikey.html" id="apiKeyLink">
-                    Get your API key
+                    Manage Account
                 </a>
             </div>
             
             <div class="navbar-end">
                 <div class="navbar-item">
                     <div class="buttons">
-                        <a class="button is-light" onclick="localStorage.clear();location.replace('/')">
+                        <a class="button is-light" onclick="logOut()">
                             Log out
                         </a>
                     </div>
@@ -56,31 +56,90 @@
     
     
     <div class="container">
-        <h1 class="title">Get your API key</h1>
+        <h1 class="title is-1">Manage Account</h1>
+        <h2 class="subtitle is-2">Quick Setup</h2>
         <button onclick="copyAPIToken()" class="button is-warning is-small">Copy</button>
-        <a class="button is-info is-small is-loading" download="Ultrashare_SXCUs.zip">Download SCXUs for ShareX</a>
-        <a class="button is-success is-small is-loading" download="Ultrashare.mconf">Download MagicCap export</a>
-        <input style="opacity: 0;pointer-events: none;" type="text"></input>
+        <a class="button is-info is-small" onclick="generateUploaderKey('ShareX')" download="Ultrashare_SXCUs.zip">Download SCXUs for ShareX</a>
+        <a class="button is-success is-small" onclick="generateUploaderKey('MagicCap')" download="Ultrashare.mconf">Download MagicCap export</a>
+        <h2 class="subtitle is-2">Create API Key</h2>
+        <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+              <input class="input" type="text" placeholder="Display name">
+            </div>
+          </div>
+          
+          
+          <div class="field">
+            <label class="label">Permissions</label>
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="fileList"><i class="material-icons">list</i> List items <br>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="fileCreate"><i class="material-icons">file_upload</i> Create items <br>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="fileModify"><i class="material-icons">drive_file_rename_outline</i> Rename items <br>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="fileDelete"><i class="material-icons">delete</i> Delete items <br>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="accountManage"><i class="material-icons">badge</i> Manage account <br>
+              </label>
+            </div>
+          </div>
+          <div class="field is-grouped">
+            <div class="control">
+              <button class="button is-primary" onclick="createApiKey()" id="apiKeyCreate">Create</button>
+            </div>
+          </div>
+        <h2 class="subtitle is-2">Sessions</h2>
         <table class="table is-striped is-fullwidth is-hoverable">
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Created by</th>
-                    <th>Date</th>
+                    <th>Created at</th>
                     <th>Permissions</th>
                     <th>Last Used</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             
-            <tbody id="uploads">
+            <tbody id="sessions">
                 
                 
             </tbody>
         </table>
+        <b>Permissions Key:</b><br>
+        <i class="material-icons">list</i> List items <br>
+        <i class="material-icons">file_upload</i> Create items <br>
+        <i class="material-icons">drive_file_rename_outline</i> Rename items <br>
+        <i class="material-icons">delete</i> Delete items <br>
+        <i class="material-icons">badge</i> Manage account <br>
+        <input style="opacity: 0;pointer-events: none;" type="text"></input>
         <audio src="/Copy.mp3"></audio>
     </div>
     <script src="jszip.min.js"></script>
+    <script src="moment.js"></script>
     <script>
         function copyAPIToken() {
             document.querySelector("input").value = localStorage.getItem("apikey")
@@ -88,67 +147,165 @@
             document.querySelector("audio").play()
             document.execCommand("copy")
         }
-        var zip = new JSZip();
-        zip.file("Ultrashare - Files.sxcu", JSON.stringify({
-            "Version": "12.4.1",
-            "Name": "Ultrashare - Files",
-            "DestinationType": "ImageUploader, FileUploader",
-            "RequestMethod": "POST",
-            "RequestURL": location.origin + "/api/files/upload",
-            "Headers": {
-                "Authorization": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
-                "fileext": "$filename$"
-            },
-            "Body": "Binary",
-            "URL": "$json:url$"
-        }));
-        zip.file("Ultrashare - Shorten.sxcu", JSON.stringify({
-            "Version": "12.4.1",
-            "Name": "Ultrashare - Shorten",
-            "DestinationType": "URLShortener",
-            "RequestMethod": "POST",
-            "RequestURL": location.origin + "api/shorten",
-            "Headers": {
-                "Authorization": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
-            },
-            "Body": "JSON",
-            "Data": "$input$",
-            "URL": "$json:url$"
-        }));
-        zip.file("Ultrashare - Text.sxcu", JSON.stringify({
-            "Version": "12.4.1",
-            "Name": "Ultrashare - Text",
-            "DestinationType": "TextUploader",
-            "RequestMethod": "POST",
-            "RequestURL": location.origin + "/api/files/upload",
-            "Headers": {
-                "Authorization": localStorage.getItem("apikey").replace(/\$/g,"\\$"),
-                "fileext": "paste"
-            },
-            "Body": "JSON",
-            "Data": "$input$",
-            "URL": "$json:url$"
-        }));
-        zip.generateAsync({type:"blob"})
-        .then(function(content) {
-            document.querySelector(".is-info").href = URL.createObjectURL(content);
-            document.querySelector(".is-info").classList.remove("is-loading")
-        });
+        var uk = ""
 
-        async function mconf() {
+        async function createApiKey() {
+            var response = await makeAPIRequest("POST","/api/sessions",JSON.stringify({
+                name: document.querySelector("input[type=text]"),
+                fileList: document.querySelector("#fileList").checked,
+                fileCreate: document.querySelector("#fileCreate").checked,
+                fileModify: document.querySelector("#fileModify").checked,
+                fileDelete: document.querySelector("#fileDelete").checked,
+                accountManage: document.querySelector("#accountManage").checked,
+            }))
+            var j = JSON.parse(response)
+            uk = j.key
+            prompt("Make sure to copy your API key *now*. It will never be shown again",uk)
+        }
+        async function generateUploaderKey(name) {
+            for (var q of document.querySelectorAll("a[download]")) {q.classList.add("is-loading")}
+            console.log("guk")
+            if (!uk) {
+                var response = await makeAPIRequest("POST","/api/sessions",JSON.stringify({
+                    name,
+                    fileCreate: true,
+                }))
+                var j = JSON.parse(response)
+                uk = j.key
+            }
+            generateSxcu(uk, name == "ShareX")
+            mconf(uk, name == "MagicCap")
+
+        }
+        async function generateSxcu(key,open) {
+            key = await key
+            var zip = new JSZip();
+            zip.file("Ultrashare - Files.sxcu", JSON.stringify({
+                "Version": "12.4.1",
+                "Name": "Ultrashare - Files",
+                "DestinationType": "ImageUploader, FileUploader",
+                "RequestMethod": "POST",
+                "RequestURL": location.origin + "/api/files",
+                "Headers": {
+                    "Authorization": key.replace(/\$/g,"\\$"),
+                    "fileext": "$filename$"
+                },
+                "Body": "Binary",
+                "URL": "$json:url$"
+            }));
+            zip.file("Ultrashare - Shorten.sxcu", JSON.stringify({
+                "Version": "12.4.1",
+                "Name": "Ultrashare - Shorten",
+                "DestinationType": "URLShortener",
+                "RequestMethod": "POST",
+                "RequestURL": location.origin + "/api/shorten",
+                "Headers": {
+                    "Authorization": key.replace(/\$/g,"\\$"),
+                },
+                "Body": "JSON",
+                "Data": "$input$",
+                "URL": "$json:url$"
+            }));
+            zip.file("Ultrashare - Text.sxcu", JSON.stringify({
+                "Version": "12.4.1",
+                "Name": "Ultrashare - Text",
+                "DestinationType": "TextUploader",
+                "RequestMethod": "POST",
+                "RequestURL": location.origin + "/api/files",
+                "Headers": {
+                    "Authorization": key.replace(/\$/g,"\\$"),
+                    "fileext": "paste"
+                },
+                "Body": "JSON",
+                "Data": "$input$",
+                "URL": "$json:url$"
+            }));
+            zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                //console.log(content)
+                document.querySelector("a[download='Ultrashare_SXCUs.zip']").href = URL.createObjectURL(content);
+                console.log(open)
+                if (open) location.replace(URL.createObjectURL(content));
+                document.querySelector("a[download='Ultrashare_SXCUs.zip']").classList.remove("is-loading")
+            });
+        }
+
+        
+
+        async function mconf(key,open) {
+            key = await key
             var blob = new Blob([JSON.stringify({
                 "version": 1,
                 "config_items": {
-                    "ultra_key": localStorage.getItem("apikey"),
+                    "ultra_key": key,
                     "ultra_domain": location.host,
-                    "ultra_https": false
+                    "ultra_https": location.protocol == "https"
                 }
-            })], {type: 'application/json+mconf'}); // pass a useful mime type here
+            })], {type: 'application/mconf+json'}); // pass a useful mime type here
             var url = URL.createObjectURL(blob);
-            document.querySelector(".is-success").href = url
-            document.querySelector(".is-success").classList.remove("is-loading")
+            console.log(url)
+            document.querySelector("a[download='Ultrashare.mconf']").href = url
+            document.querySelector("a[download='Ultrashare.mconf']").onclick = ""
+            console.log(open)
+            if (open) document.querySelector("a[download='Ultrashare.mconf']").click()
+            document.querySelector("a[download='Ultrashare.mconf']").classList.remove("is-loading")
         }
-        mconf()
+
+
+
+        async function re(id) {
+            await makeAPIRequest("DELETE","/api/sessions/" + id)
+            await pageMain()
+        }
+        function makeSession(upload) {
+            try {
+                return `<tr>
+                    <th>${upload.name}</th>
+                    <td>${upload.creator}</td>
+                    <td><abbr title="${new Date(upload.createdAt)}">${moment(upload.createdAt).fromNow()}</abbr></td>
+                    <td>
+                        ${upload.fileList ? '<i class="material-icons" alt="List items">list</i>' : ''}
+                        ${upload.fileCreate ? '<i class="material-icons" alt="Create items">file_upload</i>' : ''}
+                        ${upload.fileModify ? '<i class="material-icons" alt="Rename items">drive_file_rename_outline</i>' : ''}
+                        ${upload.fileDelete ? '<i class="material-icons" alt="Delete items">delete</i>' : ''}
+                        ${upload.accountManage ? '<i class="material-icons" alt="Manage account">badge</i>' : ''}
+                        </td>
+                    <td>${upload.id == user.id ? "Current" : `<abbr title="${new Date(upload.lastUsedAt)}">${moment(upload.lastUsedAt).fromNow()}</abbr>`}</td>
+                    <td><a  href="javascript:re('${upload.id}')" class="button is-danger material-icons">${upload.id == user.id ? "logout" : "delete"}</a></td>
+                </tr>`
+             } catch(e){return `<tr>${e}</tr>`}
+        }
+
+        async function pageMain() {
+            if (!user.accountManage) {
+                alert("You cannot manage this account with this API key.")
+                return location.replace("/dash/index.html")
+            }
+            uploads = JSON.parse(await makeAPIRequest("GET", "/api/sessions"))
+            if (!uploads) {
+                uploads = []
+            } else if (!uploads.length) {
+                uploads = [uploads]
+            }
+            uploads = uploads.sort(function(a, b) {
+                a = new Date(a.lastUsedAt);
+                b = new Date(b.lastUsedAt);
+                return a>b ? -1 : a<b ? 1 : 0;
+            });
+            var string = ""
+            for (var upload of uploads) {
+                string += makeSession(upload)
+            }
+            document.querySelector("#sessions").innerHTML = string
+            setTimeout(pageMain,5000)
+            for (var c of document.querySelectorAll("input[type=checkbox]")) {
+
+                if (!(user[c.id] === true))  {
+                    c.disabled = true
+                    c.checked = false
+                }
+            }
+        }
     </script>
     <script src="dash.js"></script>
 </body>

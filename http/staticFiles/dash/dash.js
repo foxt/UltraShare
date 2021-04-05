@@ -13,6 +13,13 @@ async function makeAPIRequest(method,ep,data) {
         return location.replace("/login.html")
     }
 }
+
+async function logOut() {
+    var logout = await makeAPIRequest("DELETE","/api")
+    localStorage.removeItem("apikey")
+    return location.replace("/login.html")
+}
+
 async function main() {
     user = JSON.parse(await makeAPIRequest("GET", "/api"))
     console.log(user)

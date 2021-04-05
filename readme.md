@@ -17,7 +17,7 @@ https://ultrashare-public-demo--thelmgn.repl.co
 
 ## MagicCap or ShareX setup guide
 
-1. Go to your UltraShare dashboard, and click "Get your API key", or visit yourserver.com/dash/apikey.html
+1. Go to your UltraShare dashboard, and click "Manage Account", or visit yourserver.com/dash/apikey.html
 2. Download the MagicCap mconf or ShareX SXCU's.
 3. For ShareX, extract the zip and open the files with ShareX.
 4. For MagicCap, open the config, click "Uploader Config", then "Import Uploader Configurations", then select the file.

@@ -67,7 +67,7 @@
       }
     }
     async function checkAuth() {
-      var ftch = await fetch("/api/getUsername", {
+      var ftch = await fetch("/api", {
           headers: {
               Authorization: window.localStorage.getItem("apikey")
           }

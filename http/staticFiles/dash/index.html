@@ -38,14 +38,14 @@
                     </div>
                 </div>
                 <a class="navbar-item" href="/dash/apikey.html" id="apiKeyLink">
-                    Get your API key
+                    Manage Account
                 </a>
             </div>
             
             <div class="navbar-end">
                 <div class="navbar-item">
                     <div class="buttons">
-                        <a class="button is-light" onclick="localStorage.clear();location.replace('/')">
+                        <a class="button is-light" onclick="logOut()">
                             Log out
                         </a>
                     </div>
@@ -152,9 +152,9 @@
                     <td><a href="/${upload.id}${filetype}">${upload.id}</a></td>
                     <td><abbr title="${new Date(upload.date)}">${moment(upload.date).fromNow()}</abbr></td>
                     <td>${parseUA(upload.ua)}</td>
-                    <td><a href="javascript:preview('${upload.id}${filetype}')" class="button is-primary">Preview</a>
-                        ${user.fileModify ? `<a href="javascript:changeID('${upload.id}')" class="button is-warning">Change URL</a>` : "" }
-                        ${user.fileDelete ? `<a href="javascript:deleteItem('${upload.id}')" class="button is-danger">Delete</a></td>` : "" }
+                    <td><a href="javascript:preview('${upload.id}${filetype}')" class="button is-primary material-icons">preview</a>
+                        ${user.fileModify ? `<a href="javascript:changeID('${upload.id}')" class="button is-warning material-icons">drive_file_rename_outline</a>` : "" }
+                        ${user.fileDelete ? `<a href="javascript:deleteItem('${upload.id}')" class="button is-danger material-icons">delete</a></td>` : "" }
                 </tr>`
              } catch(e){return `<tr>${e}</tr>`}
         }
