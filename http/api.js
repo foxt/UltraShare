@@ -20,7 +20,7 @@ function randomString(length, chars) {
     return result;
 }
 function getID(req,allowCustom) {
-    if (allowCustom && req.params.id && !invalidNames.includes(req.params.id.toLowerCase()) && !allowedCharsRegex.test(req.params.id.toString())) {
+    if (allowCustom && req.params.id && !invalidNames.includes(req.params.id.toLowerCase()) && allowedCharsRegex.test(req.params.id.toString())) {
         if (!global.fileDB.get({id: req.params.id})) {
             return req.params.id
         }
