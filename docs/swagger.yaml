@@ -1,0 +1,457 @@
+swagger: "2.0"
+info:
+  description: "UltraShare is a all in one server for screenshots, files, code, and links\n\nAuthentication is performed by attaching a 'Authorization' header with your API key."
+  version: "2.0.0"
+  title: "UltraShare"
+  contact:
+    email: "me@thelmgn.com"
+host: "localhost:8082"
+basePath: "/api"
+tags:
+- name: "Authentication"
+  description: "Logging in and out"
+- name: "Files"
+  description: "Files, pastes & shortened links"
+- name: "Sessions"
+  description: "Creating and removing sessions & API keys"
+schemes:
+- "http"
+paths:
+  /:
+    get:
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+      tags:
+        - "Authentication"
+      summary: "Get current session permissions"
+      description: "Returns the current API key details & permissions in use"
+      operationId: "GetAuthentication"
+      produces:
+      - "application/json"
+      responses:
+        "401":
+          description: "invalid api key"
+        "200":
+          description: "The current API key in use"
+          schema:
+            $ref: "#/definitions/ApiKey"
+    post:
+      tags:
+        - "Authentication"
+      summary: "Login with username & 2FA code"
+      description: "Generates a new API key for you to use for further requests"
+      operationId: "Login"
+      consumes:
+      - "application/json"
+      produces:
+      - "text/plain"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Credentials to login as"
+        required: true
+        schema:
+          type: "object"
+          required:
+          - "username"
+          - "totp"
+          properties:
+            username:
+              type: "string"
+              example: "user"
+            totp:
+              type: "string"
+              example: "123456"
+      responses:
+        "500":
+          description: "authentication error, try again"
+        "401":
+          description: "invalid credentials"
+        "200":
+          description: "sends api key back as text"
+    delete:
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+      tags:
+        - "Authentication"
+      summary: "Log out: self-destruct the current API key"
+      description: "Deletes the API key currently in use"
+      operationId: "SelfDestruct"
+      produces:
+      - "text/plain"
+      responses:
+        "401":
+          description: "invalid api key"
+        "200":
+          description: "logged out"
+          
+          
+          
+          
+          
+  /sessions:
+    get:
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+      tags:
+        - "Sessions"
+      summary: "Get all account sessions"
+      description: "Returns all the sessions available on the account."
+      operationId: "GetSessions"
+      produces:
+        - "application/json"
+      responses:
+        "401":
+          description: "invalid api key"
+        "200":
+          description: "The current sessions on the account"
+          schema:
+            type: "array"
+            items: 
+              $ref: "#/definitions/ApiKey"
+    post:
+      tags:
+        - "Sessions"
+      summary: "Create new API Key"
+      description: "Generates a new API key for you to use for further requests"
+      operationId: "SessionCreate"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+        - in: "body"
+          name: "body"
+          description: "Credentials to login as"
+          required: true
+          schema:
+            type: "object"
+            required:
+              - name
+            properties:
+              name:
+                type: "string"
+                example: "ShareX"
+              fileList:
+                type: "boolean"
+                description: "Can get a list of all files & shortened links uploaded to this account"
+              fileCreate:
+                type: "boolean"
+                description: "Can create files & shortened links"
+              fileModify:
+                type: "boolean"
+                description: "Can rename files & shortened links"
+              fileDelete:
+                type: "boolean"
+                description: "Can delete files & shortened links"
+              accountManage:
+                type: "boolean"
+                description: "Can manage the account"
+      responses:
+        "500":
+          description: "authentication error, try again"
+        "400":
+          description: "annot create a api key with permission without having it yourself."
+        "401":
+          description: "invalid credentials"
+        "200":
+          schema:
+            $ref: "#/definitions/ApiKey"
+  /sessions/{id}:
+    delete:
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+        - in: path
+          name: id   # Note the name is the same as in the path
+          required: true
+          type: string
+          description: The session ID
+      tags:
+        - "Sessions"
+      summary: "Deletes a session"
+      description: "Deletes a session by ID"
+      operationId: "SessionDelete"
+      produces:
+      - "application/json"
+      responses:
+        "401":
+          description: "invalid api key"
+        "200":
+          description: "removed"
+    
+
+
+
+  /files:
+    get:
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+      tags:
+        - "Files"
+      summary: "Get all files & shortened links on the account"
+      description: "Returns all the files & shortened links available on the account."
+      operationId: "ListItems"
+      produces:
+        - "application/json"
+      responses:
+        "401":
+          description: "invalid api key"
+        "200":
+          description: "The current files & shortened links on the account"
+          schema:
+            type: "array"
+            items: 
+              $ref: "#/definitions/File"
+    
+  /files/{id}:
+    post:
+      tags:
+        - "Files"
+      summary: "Upload file"
+      description: "Uploads a file"
+      operationId: "upload"
+      consumes:
+      - "*/*"
+      produces:
+      - "application/json"
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+        - in: path
+          name: id   
+          required: false
+          type: string
+          description: The optional ID of the uploaded file. If not specified it wil be randomly generated
+        - in: header
+          name: fileext
+          description: "File extension"
+          example: "paste"
+          type: string
+          required: true
+        - in: "body"
+          name: "body"
+          description: "The file to upload"
+          example: "Hello, world!"
+          required: true
+      responses:
+        "401":
+          description: "invalid credentials"
+        "200":
+          schema:
+            type: "object"
+            required:
+              - name
+            properties:
+              id:
+                type: "string"
+                example: "abc"
+              url:
+                type: "string"
+                description: "http://localhost:8082/abc.paste"
+    delete:
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+        - in: path
+          name: id   # Note the name is the same as in the path
+          required: true
+          type: string
+          description: The file ID
+      tags:
+        - "Files"
+      summary: "Deletes a file"
+      description: "Deletes a file by ID"
+      operationId: "FileDelete"
+      produces:
+      - "text/plain"
+      responses:
+        "401":
+          description: "invalid api key"
+        "404":
+          description: "not found"
+        "200":
+          description: "ok! deleted file with id {id}"
+    patch:
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+        - in: path
+          name: id   # Note the name is the same as in the path
+          required: true
+          type: string
+          description: The file ID
+        - in: body
+          name: newid  
+          required: true
+          type: string
+          example: "example"
+          description: The files new ID
+      tags:
+        - "Files"
+      summary: "Rename a file"
+      description: "Changes a file's ID"
+      operationId: "FileChange"
+      consumes:
+        - "text/plain"
+      produces:
+      - "text/plain"
+      responses:
+        "401":
+          description: "invalid api key"
+        "404":
+          description: "not found"
+        "409":
+          description: "new id is taken"
+        "200":
+          description: "ok! {id} is now {newid}"
+  /shorten/{id}:
+    post:
+      tags:
+        - "Files"
+      summary: "Shorten link"
+      description: "Creates a file of type 'link'"
+      operationId: "shorten"
+      consumes:
+      - "text/plain"
+      produces:
+      - "application/json"
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Your API Key"
+          type: string
+          required: true
+        - in: path
+          name: id   
+          required: false
+          type: string
+          description: The optional ID of the uploaded file. If not specified it wil be randomly generated
+        - in: "body"
+          name: "body"
+          description: "The target URL"
+          example: "https://google.com"
+          required: true
+      responses:
+        "401":
+          description: "invalid credentials"
+        "200":
+          schema:
+            type: "object"
+            required:
+              - name
+            properties:
+              id:
+                type: "string"
+                example: "abc"
+              url:
+                type: "string"
+                description: "http://localhost:8082/abc.paste"
+          
+          
+          
+definitions:
+  ApiKey:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Publicly available ID to refer to this API key"
+        example: "DMgfV37xff1hkXZcyiAhC0TRlLUzeJfY8m7Je6dkGTg8wi557SgJK8YUdUX2NFGF"
+      key:
+        type: "string"
+        format: "password"
+        description: "The actual API key that can be used to authenticate requests"
+        example: "UmFUuKKY6wBU9Y4btq4jzdLmXdphGx5lAOkwyNasnFn4LvN2UM4sDYB80I9OynDU"
+      name:
+        type: "string"
+        example: "ShareX"
+      creator:
+        type: "string"
+        example: "You, via Firefox"
+        description: "The creator of this API key. Either 'UltraShare Login' or 'You, via X', where X is the name of the API key that created this API key"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      lastUsedAt:
+        type: "string"
+        format: "date-time"
+      fileList:
+        type: "boolean"
+        description: "Can get a list of all files & shortened links uploaded to this account"
+      fileCreate:
+        type: "boolean"
+        description: "Can create files & shortened links"
+      fileModify:
+        type: "boolean"
+        description: "Can rename files & shortened links"
+      fileDelete:
+        type: "boolean"
+        description: "Can delete files & shortened links"
+      accountManage:
+        type: "boolean"
+        description: "Can manage the account"
+  File:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        enum: [file, link]
+        description: "The type of file that this is"
+      id:
+        type: "string"
+        description: "The ID of the file"
+      name:
+        type: "string"
+        example: "ShareX"
+      date:
+        type: "string"
+        description: "The date the file was created"
+        format: "date-time"
+      ua:
+        type: "string"
+        description: "The user agent of the uploader"
+      file:
+        type: "string"
+        description: "(Files only) The name of the file as it is stored on disk."
+        example: "file.png"
+      redir:
+        type: "string"
+        description: "(Links only) The target URL of the redirect"
+        example: "https://google.com"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
