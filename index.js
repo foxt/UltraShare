@@ -9,8 +9,18 @@ const fs = require('fs');
 const app = Express()
 
 if (!fs.existsSync("./db/")) {
+    if (fs.existsSync("./db.json")) {
+        console.error(`
+   _____ _______ ____  _____  _ 
+  / ____|__   __/ __ \\|  __ \\| |
+ | (___    | | | |  | | |__) | |
+  \\___ \\   | | | |  | |  ___/| |
+  ____) |  | | | |__| | |    |_|
+ |_____/   |_|  \\____/|_|    (_)
+UltraShare has detected a legacy 1.x database in the current folder. Please follow the migration steps before continuing!`)
+        process.exit();
+    }
     fs.mkdirSync("./db")
-    if (fs.existsSync("./db.json")) fs.renameSync("./db.json","./db/files.json")
 }
 
 const fileDB = global.fileDB = new DB("./db/files.json")
