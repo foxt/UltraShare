@@ -59,8 +59,8 @@
         <h1 class="title is-1">Manage Account</h1>
         <h2 class="subtitle is-2">Quick Setup</h2>
         <button onclick="copyAPIToken()" class="button is-warning is-small">Copy</button>
-        <a class="button is-info is-small" onclick="generateUploaderKey('ShareX')" download="Ultrashare_SXCUs.zip">Download SCXUs for ShareX</a>
-        <a class="button is-success is-small" onclick="generateUploaderKey('MagicCap')" download="Ultrashare.mconf">Download MagicCap export</a>
+        <a class="button is-info is-small" onclick="generateUploaderKey('ShareX')" download="UltraShare_SXCUs.zip">Download SCXUs for ShareX</a>
+        <a class="button is-success is-small" onclick="generateUploaderKey('MagicCap')" download="UltraShare.mconf">Download MagicCap export</a>
         <h2 class="subtitle is-2">Create API Key</h2>
         <div class="field">
             <label class="label">Name</label>
@@ -180,9 +180,9 @@
         async function generateSxcu(key,open) {
             key = await key
             var zip = new JSZip();
-            zip.file("Ultrashare - Files.sxcu", JSON.stringify({
+            zip.file("UltraShare - Files.sxcu", JSON.stringify({
                 "Version": "12.4.1",
-                "Name": "Ultrashare - Files",
+                "Name": "UltraShare - Files",
                 "DestinationType": "ImageUploader, FileUploader",
                 "RequestMethod": "POST",
                 "RequestURL": location.origin + "/api/files",
@@ -193,9 +193,9 @@
                 "Body": "Binary",
                 "URL": "$json:url$"
             }));
-            zip.file("Ultrashare - Shorten.sxcu", JSON.stringify({
+            zip.file("UltraShare - Shorten.sxcu", JSON.stringify({
                 "Version": "12.4.1",
-                "Name": "Ultrashare - Shorten",
+                "Name": "UltraShare - Shorten",
                 "DestinationType": "URLShortener",
                 "RequestMethod": "POST",
                 "RequestURL": location.origin + "/api/shorten",
@@ -206,9 +206,9 @@
                 "Data": "$input$",
                 "URL": "$json:url$"
             }));
-            zip.file("Ultrashare - Text.sxcu", JSON.stringify({
+            zip.file("UltraShare - Text.sxcu", JSON.stringify({
                 "Version": "12.4.1",
-                "Name": "Ultrashare - Text",
+                "Name": "UltraShare - Text",
                 "DestinationType": "TextUploader",
                 "RequestMethod": "POST",
                 "RequestURL": location.origin + "/api/files",
@@ -223,10 +223,10 @@
             zip.generateAsync({type:"blob"})
             .then(function(content) {
                 //console.log(content)
-                document.querySelector("a[download='Ultrashare_SXCUs.zip']").href = URL.createObjectURL(content);
+                document.querySelector("a[download='UltraShare_SXCUs.zip']").href = URL.createObjectURL(content);
                 console.log(open)
                 if (open) location.replace(URL.createObjectURL(content));
-                document.querySelector("a[download='Ultrashare_SXCUs.zip']").classList.remove("is-loading")
+                document.querySelector("a[download='UltraShare_SXCUs.zip']").classList.remove("is-loading")
             });
         }
 
@@ -244,11 +244,11 @@
             })], {type: 'application/mconf+json'}); // pass a useful mime type here
             var url = URL.createObjectURL(blob);
             console.log(url)
-            document.querySelector("a[download='Ultrashare.mconf']").href = url
-            document.querySelector("a[download='Ultrashare.mconf']").onclick = ""
+            document.querySelector("a[download='UltraShare.mconf']").href = url
+            document.querySelector("a[download='UltraShare.mconf']").onclick = ""
             console.log(open)
-            if (open) document.querySelector("a[download='Ultrashare.mconf']").click()
-            document.querySelector("a[download='Ultrashare.mconf']").classList.remove("is-loading")
+            if (open) document.querySelector("a[download='UltraShare.mconf']").click()
+            document.querySelector("a[download='UltraShare.mconf']").classList.remove("is-loading")
         }
 
 
