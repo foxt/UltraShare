@@ -25,22 +25,30 @@ UltraShare has detected a legacy 1.x database in the current folder. Please foll
 
 const fileDB = global.fileDB = new DB("./db/files.json")
 const apiKeyDB = global.apiKeyDB = new DB("./db/apikeys.json")
+const userDB = global.userDB = new DB("./db/users.json")
 
 require("./http/api")(app)
+require("./http/admin")(app)
 
 app.get("/", function(req,res) {
     console.log("[MAIN]",req.ip, req.url, req.header("User-Agent"))
     ejs.renderFile("./http/dynamic/hero.ejs", {
         pageTitle: "UltraShare",
         heroType: "primary is-bold",
-        heroTitle: "Welcome to UltraShare!",
-        heroText: "UltraShare is a all in one server for screenshots, files, images, and links.",
+        heroTitle: "Welcome to " + config.instanceName + "!",
+        heroText: config.instanceDescription,
         heroLinks: [
                 {
                     color: "link is-large",
                     icon: "account_circle",
                     text: "Login",
                     link: "/login.html"
+                },
+                {
+                    color: "primary is-large",
+                    icon: "admin_panel_settings",
+                    text: "Administrator Login",
+                    link: "/admin.html"
                 }
         ]
     }, {}, function(err, str){
