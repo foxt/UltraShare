@@ -18,18 +18,14 @@ class JsonDatabase {
         }
     }
     get(where) {
-        var returns = []
-        for (var e of this.db) {
-            var match = true
+        var returns = this.db.filter((v) => {
             for (var prop in where) {
-                if (e[prop] != where[prop]) {
-                    match = false
+                if (v[prop] != where[prop]) {
+                    return false;
                 }
             }
-            if (match) {
-                returns.push(e)
-            }
-        }
+            return true;
+        })
         if (returns.length < 2) {
             return returns[0]
         }
@@ -40,13 +36,11 @@ class JsonDatabase {
             var match = true
             for (var prop in where) {
                 if (e[prop] != where[prop]) {
-                    match = false
+                    continue;
                 }
             }
-            if (match) {
-                for (var prop in change) {
-                    e[prop] = change[prop]
-                }
+            for (var prop in change) {
+                e[prop] = change[prop]
             }
         }
     }
@@ -54,19 +48,14 @@ class JsonDatabase {
         this.db.push(newe)
     }
     remove(where) {
-        var neww = []
-        for (var e of this.db) {
-            var match = true
+        this.db = this.db.filter((v) => {
             for (var prop in where) {
-                if (e[prop] != where[prop]) {
-                    match = false
+                if (v[prop] != where[prop]) {
+                    return true;
                 }
             }
-            if (!match) {
-                neww.push(e)
-            }
-        }
-        this.db = neww
+            return false;
+        })
     }
     reload() {
         console.log("[DB] Reloading from",this.filename)
