@@ -182,7 +182,12 @@
             if (!user.fileList) {
                 return document.querySelector(".itemCount").innerHTML = `You cannot list files. If you think this is a mistake, try logging out and back in, and if you still cannot list files, contact this instance's administrator.`
             }
-            uploads = JSON.parse(await makeAPIRequest("GET", "/api/files"))
+            
+            var uploads;
+            try {
+                uploads = JSON.parse( await makeAPIRequest("GET", "/api/files"))
+            } catch(e) {console.error(e)}
+            
             if (!uploads) {
                 document.querySelector(".itemCount").innerHTML = `<strong id="itemCount">0</strong> items`
                 uploads = []

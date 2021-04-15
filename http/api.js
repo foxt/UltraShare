@@ -128,9 +128,10 @@ module.exports = function (app) {
                 console.log("[API_Login]", req.ip, req.url, req.header("User-Agent"), data)
                 if (data.length > 256) return;
                 var j = JSON.parse(data)
-                if (j.username == global.config.username) {
+                var getUser = userDB.get({user: j.username})
+                if (getUser) {
                     var valid = speakeasy.totp.verify({
-                        secret: global.config.totpSecret,
+                        secret: getUser.totpSecret,
                         encoding: 'base32',
                         token: j.totp
                     })
@@ -152,7 +153,7 @@ module.exports = function (app) {
                         global.apiKeyDB.add({
                             id: i,
                             key: k,
-                            user: j.username,
+                            user: getUser.user,
                             name: parseUA(req.header('User-Agent')),
                             creator: "UltraShare Login",
                             fileDelete: true, // Delete uploaded files
@@ -278,7 +279,8 @@ module.exports = function (app) {
         var authState = checkAuth(auth)
         if (authState && authState.accountManage) {
             global.apiKeyDB.remove({
-                id: req.params.id
+                id: req.params.id,
+                user: authState.user
             })
             res.send("removed")
         } else {
@@ -316,7 +318,7 @@ module.exports = function (app) {
             res.set({
                 "Content-Type": "application/json"
             })
-            res.send(JSON.stringify(global.fileDB.get({})))
+            res.send(JSON.stringify(global.fileDB.get({user: authState.user})))
         } else {
             res.status(401)
             res.send("invalid api key")
@@ -331,7 +333,8 @@ module.exports = function (app) {
                 "Content-Type": "application/json"
             })
             var item = global.fileDB.get({
-                id: req.params.id
+                id: req.params.id,
+                user: authState.user
             })
             if (item) {
                 global.fileDB.remove(item)
@@ -366,7 +369,8 @@ module.exports = function (app) {
                     return res.send("invalid characters in url, allowed characters: " + global.config.fileName.allowedChars)
                 }
                 var item = global.fileDB.get({
-                    id: req.params.id
+                    id: req.params.id,
+                    user: authState.user,
                 })
                 var itemNew = global.fileDB.get({
                     id: newid
@@ -378,8 +382,8 @@ module.exports = function (app) {
                     global.fileDB.save()
                     res.send("ok! " + req.params.id + " is now " + newid)
                 } else {
-                    res.status(item ? 404 : 409)
-                    res.send(item ? "not found" : "new id is taken")
+                    res.status(item ? 409 : 404)
+                    res.send(item ? "new id is taken" : "not found")
                 }
             })
 
@@ -407,7 +411,8 @@ module.exports = function (app) {
                     id: id,
                     file: id + "." + ext,
                     date: new Date(),
-                    ua: req.header("User-Agent")
+                    ua: req.header("User-Agent"),
+                    user: authState.user
                 })
                 global.fileDB.save()
 
@@ -441,7 +446,8 @@ module.exports = function (app) {
                     id: id,
                     redir: link,
                     date: new Date(),
-                    ua: req.header("User-Agent")
+                    ua: req.header("User-Agent"),
+                    user: authState.user
                 })
                 global.fileDB.save()
                 res.send(JSON.stringify({
@@ -458,6 +464,7 @@ module.exports = function (app) {
     app.post("/api/shorten", shortenHandler)
     app.get("/api/brew", function (req, res) {
         res.status(418)
+        res.header('Content-Size',"Short and stout")
         res.send("I'm a teapot.")
     })
 }
