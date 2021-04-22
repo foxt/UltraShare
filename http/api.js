@@ -183,6 +183,7 @@ module.exports = function (app) {
         var authState = checkAuth(auth)
         if (authState) {
             global.apiKeyDB.remove(authState)
+            global.apiKeyDB.save()
             res.send("logged out")
         } else {
             res.status(401)
@@ -270,6 +271,7 @@ module.exports = function (app) {
             }
 
             global.apiKeyDB.add(nk)
+            global.apiKeyDB.save()
             return res.send(nk)
         })
     })
@@ -282,6 +284,7 @@ module.exports = function (app) {
                 id: req.params.id,
                 user: authState.user
             })
+            global.apiKeyDB.save()
             res.send("removed")
         } else {
             res.status(401)
