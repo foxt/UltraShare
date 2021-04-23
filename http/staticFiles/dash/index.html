@@ -103,24 +103,26 @@
         }
         function parseUA(ua) {
             // Uploaders
-            if (ua.toLowerCase().includes("magiccap")) {return "MagicCap"}
-            if (ua.toLowerCase().includes("sharex")) {return ua.replace("/"," ")}
+            if (ua.toLowerCase().includes("magiccap")) return "MagicCap"
+            if (ua.toLowerCase().includes("sharex")) return ua.replace("/"," ")
 
             // Browsers
             // Chrome
-            if (ua.toLowerCase().includes("edg")) {return "Edge"} // Edge Chromium uses 'Edg', Edge (native) uses 'Edge'
-            if (ua.toLowerCase().includes("vivaldi")) {return "Vivaldi"}
-            if (ua.toLowerCase().includes("opera")) {return "Opera"}
-            if (ua.toLowerCase().includes("brave")) {return "Brave"}
-            if (ua.toLowerCase().includes("chrome")) {return "Chrome"}
+            if (ua.toLowerCase().includes("edg")) return "Edge" // Edge Chromium uses 'Edg', Edge (native) uses 'Edge'
+            if (ua.toLowerCase().includes("vivaldi")) return "Vivaldi"
+            if (ua.toLowerCase().includes("opera")) return "Opera"
+            if (ua.toLowerCase().includes("brave")) return "Brave"
+            if (ua.toLowerCase().includes("chrome")) return "Chrome"
+            if (ua.toLowerCase().includes("chrom")) return "Chromium"
+    
             
             // Other browsers
-            if (ua.toLowerCase().includes("firefox")) {return "Firefox"}
-            if (ua.toLowerCase().includes("trident")) {return "Internet Explorer"}
-            if (ua.toLowerCase().includes("iphone") ) {return "iPhone"}
-            if (ua.toLowerCase().includes("ipad") ) {return "iPad"}
-            if (ua.toLowerCase().includes("ipod") ) {return "iPod Touch"}
-            if (ua.toLowerCase().includes("safari")) {return "Safari"}
+            if (ua.toLowerCase().includes("firefox")) return "Firefox"
+            if (ua.toLowerCase().includes("trident")) return "Internet Explorer"
+            if (ua.toLowerCase().includes("iphone") ) return "iPhone"
+            if (ua.toLowerCase().includes("ipad") ) return "iPad"
+            if (ua.toLowerCase().includes("ipod") ) return "iPod Touch"
+            if (ua.toLowerCase().includes("safari")) return "Safari"
 
             // Others
             return makeNoun(ua.split("/")[0])
@@ -142,6 +144,10 @@
                         type = ft.toUpperCase() + " Video"
                     } else if (ft == "mp3" || ft == "wav" || ft == "ogg" || ft == "m4a" || ft == "m4r" || ft == "caf") {
                         type = ft.toUpperCase() + " Audio"
+                    } else if (ft == "js" || ft == "py" || ft == "hx" || ft == "go" || ft == "cpp" || ft == "lua") {
+                        type = ft.toUpperCase() + " Code"
+                    } else if (ft == "md" || ft == "doc" || ft == "docx" || ft == "html" || ft == "css" || ft == "pdf") {
+                        type = ft.toUpperCase() + " Document"
                     }
                     filetype = `.${ft}}`
                 } else if (upload.type = "link") {

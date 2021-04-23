@@ -2,7 +2,7 @@ async function makeAPIRequest(method,ep,data) {
     var ftch = await fetch(ep, {
         method: method,
         headers: {
-            Authorization: window.localStorage.getItem("apikey")
+            Authorization: window.sessionStorage.getItem('userImpersonation') || window.localStorage.getItem("apikey")
         },
         body: data
     })
@@ -15,6 +15,10 @@ async function makeAPIRequest(method,ep,data) {
 }
 
 async function logOut() {
+    if (window.sessionStorage.getItem('userImpersonation') ) {
+        window.sessionStorage.removeItem('userImpersonation') 
+        return location.replace("/dash/admin")
+    }
     var logout = await makeAPIRequest("DELETE","/api")
     localStorage.removeItem("apikey")
     return location.replace("/login.html")

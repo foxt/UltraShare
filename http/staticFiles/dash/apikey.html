@@ -142,7 +142,7 @@
     <script src="moment.js"></script>
     <script>
         function copyAPIToken() {
-            document.querySelector("input").value = localStorage.getItem("apikey")
+            document.querySelector("input").value = window.sessionStorage.getItem('userImpersonation') || window.localStorage.getItem("apikey")
             document.querySelector("input").select()
             document.querySelector("audio").play()
             document.execCommand("copy")

@@ -49,7 +49,7 @@
           var ftch = await fetch("/api/login", {
             method: "POST",
             body: JSON.stringify({
-              username: username.value,
+              user: username.value,
               totp: totp.value
             })
           })
@@ -69,7 +69,7 @@
     async function checkAuth() {
       var ftch = await fetch("/api", {
           headers: {
-              Authorization: window.localStorage.getItem("apikey")
+              Authorization: window.sessionStorage.getItem('userImpersonation') || window.localStorage.getItem("apikey")
           }
       })
       if (ftch.status ==  200){
@@ -79,7 +79,7 @@
         document.querySelector("#login").style.display = "block"
       }
     }
-    if (localStorage.getItem("apikey")) {
+    if (window.sessionStorage.getItem('userImpersonation') || window.localStorage.getItem("apikey")) {
       checkAuth() 
     } else {
       document.querySelector("#loggingin").style.display = "none"

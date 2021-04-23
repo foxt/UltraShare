@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>UltraShare Administrator</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bulma.min.css">
+    </link>
+    <link rel="stylesheet" href="../dash.css">
+    </link>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <strong>UltraShare Admin</strong>
+        </div>
+
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item is-active" href="/dash" id="viewItemsLink">
+                    Manage users
+                </a>
+
+
+            </div>
+
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-light" onclick="location.replace('/')">
+                            Exit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <center>
+            <p class="subtitle is-5 itemCount">
+                <strong id="itemCount">123</strong> users
+            </p>
+        </center>
+        <table class="table is-striped is-fullwidth is-hoverable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Enabled</th>
+                    <th>Uploads</th>
+                    <th>Sessions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="uploads">
+
+
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th colspan="4"><input type='text' class='input is-primary' placeholder="username"></th>
+                    <th><a href="javascript:makeUser()" class="button is-primary material-icons">add</a></th>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="modal">
+            <div class="modal-background"></div>
+            <div class="modal-content modal-card">
+                <!-- Any other Bulma elements you want -->
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-iframe {
+            height: 70vh;
+            width: 70vw;
+            position: fixed;
+            left: 15vw;
+            top: 15vh;
+            background: #222;
+        }
+    </style>
+    <script src="moment.js"></script>
+    <script>
+        function makeUpload(name, upload) {
+            try {
+
+                return `<tr>
+                    <th>${name}</th>
+                    <td>${upload.canLogin ? 'Yes' : 'No'}</td>
+                    <td>${upload.files}</td>
+                    <td>${upload.apiKeys}</td>
+                    <td><a href="javascript:editUser('${encodeURIComponent(name)}')" class="button is-primary material-icons">create</a>
+                        
+                </tr>`
+            } catch (e) {
+                return `<tr>${e}</tr>`
+            }
+        }
+        document.querySelector(".modal-background").onclick = pageMain
+        
+
+        function editUser(id) {
+            document.querySelector(".modal").classList.add('is-active')
+            var name = decodeURIComponent(id)
+            document.querySelector(".modal-content").innerHTML = `
+            <header class="modal-card-head">
+                <p class="modal-card-title">${name}</p>
+                <button class="delete" onclick="pageMain()" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <b>Can login:</b> ${uploads[name].canLogin ? 'Yes' : 'No'}<br>
+                <b>Sessions:</b> ${uploads[name].apiKeys}<br>
+                <b>Uploads:</b> ${uploads[name].files}<br>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" onclick="impersonate('${id}')">Impersonate</button>
+                ${uploads[name].canLogin ? `<button class="button is-link" onclick="deleteItem('${id}')">Disable login</button>` : `<button class="button is-link" onclick="createUser('${id}')">Enable login</button>`}
+                ${uploads[name].apiKeys > 0 ? `<button class="button is-warning" onclick="revokeSessions('${id}')">Revoke all sessions</button>` :"" }
+                ${uploads[name].files > 0 ? `<button class="button is-danger" onclick="deleteFiles('${id}')">Delete all uploads</button>` : "" }
+            </footer>
+            `
+        }
+        async function impersonate(user) {
+            var f = await fetch(`/api/admin/${user}/session`,{
+                headers: {
+                    Authorization: secret
+                }
+            })
+            var t = await f.text()
+            sessionStorage.setItem('userImpersonation',t)
+            location.replace('/dash')
+        }
+        async function deleteItem(id) {
+            if (confirm("Really disable " + id + "? They will have to reconfigure their TOTP app if you change your mind!")) {
+                await await fetch(`/api/admin/${id}`,{
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: secret
+                    }
+                })
+                pageMain()
+            }
+        }
+        async function revokeSessions(id) {
+            if (confirm("Really revoke " + id + "'s sessions? They will have to reconfigure any uploaders!")) {
+                await await fetch(`/api/admin/${id}/sessions`,{
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: secret
+                    }
+                })
+                pageMain()
+            }
+        }
+
+        async function deleteFiles(id) {
+            if (confirm("Really delete all of " + id + "'s files? There is **no** way to recover these files, as they are deleted from the file system")) {
+                await await fetch(`/api/admin/${id}/files`,{
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: secret
+                    }
+                })
+                pageMain()
+            }
+        }
+        
+        async function createUser(id){
+            var f = await fetch(`/api/admin/${id}`,{
+                method: 'POST',
+                headers: {
+                    Authorization: secret
+                }
+            })
+            var j = await f.json()
+            var url = `otpauth://totp/UltraShare:${id}?secret=${j.base32}&issuer=UltraShare`
+            var qr = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=" + window.encodeURIComponent(url)
+            document.querySelector(".modal-content").innerHTML = `
+            <header class="modal-card-head">
+                <p class="modal-card-title">${decodeURIComponent(id)}: 2FA setup</p>
+                <button class="delete" onclick="pageMain()" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body" style="word-wrap: break-word;">
+                Hi, ${decodeURIComponent(id)}!<br><br>
+                Welcome to UltraShare! UltraShare is a all in one server for screenshots, files, images, and links.<br>
+                To get started, you'll need to download a TOTP app like, Google Authenticator or Authy.<br><br>
+                <b>Log in at</b> <a href="${location.origin}/">${location.origin}</a><br>
+                <b>Username:</b> ${decodeURIComponent(id)}<br>
+                <b>2FA Secret:</b> ${j.base32}<br>
+                You can generate a QR code for the 2FA secret at <a href="${qr}">${qr}</a>.
+            </section>
+            `
+        }
+        
+        function makeUser() {
+            uploads[document.querySelector('input').value] = {
+                canLogin: false,
+                files: 0,
+                apiKeys: 0,
+            }
+            editUser(encodeURIComponent(document.querySelector('input').value))
+        }
+        
+        async function pageMain() {
+            document.querySelector(".modal").classList.remove('is-active')
+            secret = typeof secret == "undefined" ? prompt("Please enter the admin secret:") : secret
+            var f = await fetch('/api/admin/users', {
+                headers: {
+                    Authorization: secret
+                }
+            })
+            if (!f.ok) location.reload()
+            uploads = await f.json()
+
+            document.querySelector(".itemCount").innerHTML =
+                `<strong id="itemCount">${Object.keys(uploads).length}</strong> users`
+            var string = ""
+            for (var upload in uploads) {
+                string += makeUpload(upload, uploads[upload])
+            }
+            document.querySelector("#uploads").innerHTML = string
+        }
+        pageMain()
+    </script>
+</body>
+
+</html>

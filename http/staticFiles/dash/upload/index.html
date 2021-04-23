@@ -123,7 +123,7 @@ function copyTextToClipboard(text) {
                 var ftch = await fetch("/api/files/", {
                     method: "POST",
                     headers: {
-                        Authorization: window.localStorage.getItem("apikey"),
+                        Authorization: window.sessionStorage.getItem('userImpersonation') || window.localStorage.getItem("apikey"),
                         fileext: f.name.split(".").pop() || f.name
                     },
                     body: contents

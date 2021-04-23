@@ -41,7 +41,11 @@ function getID(req, allowCustom) {
         }
     }
 }
-
+function makeNoun(word) {
+    return word.replace(/\b[a-z]/g, function(letter) {
+        return letter.toUpperCase();
+    });
+}
 function parseUA(ua) {
     // Uploaders
     if (ua.toLowerCase().includes("magiccap")) {
@@ -53,9 +57,10 @@ function parseUA(ua) {
 
     // Browsers
     // Chrome
+    // Edge Chromium uses 'Edg', Edge (native) uses 'Edge'
     if (ua.toLowerCase().includes("edg")) {
         return "Edge"
-    } // Edge Chromium uses 'Edg', Edge (native) uses 'Edge'
+    } 
     if (ua.toLowerCase().includes("vivaldi")) {
         return "Vivaldi"
     }
@@ -67,6 +72,9 @@ function parseUA(ua) {
     }
     if (ua.toLowerCase().includes("chrome")) {
         return "Chrome"
+    }
+    if (ua.toLowerCase().includes("chrom")) {
+        return "Chromium"
     }
 
     // Other browsers
@@ -128,7 +136,7 @@ module.exports = function (app) {
                 console.log("[API_Login]", req.ip, req.url, req.header("User-Agent"), data)
                 if (data.length > 256) return;
                 var j = JSON.parse(data)
-                var getUser = userDB.get({user: j.username})
+                var getUser = userDB.get({user: j.user || j.username})
                 if (getUser) {
                     var valid = speakeasy.totp.verify({
                         secret: getUser.totpSecret,

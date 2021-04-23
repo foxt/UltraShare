@@ -102,7 +102,7 @@ function copyTextToClipboard(text) {
             var ftch = await fetch("/api/files/upload", {
                 method: "POST",
                 headers: {
-                    Authorization: window.localStorage.getItem("apikey"),
+                    Authorization: window.sessionStorage.getItem('userImpersonation') || window.localStorage.getItem("apikey"),
                     fileext: "paste"
                 },
                 body: document.querySelector("textarea").value

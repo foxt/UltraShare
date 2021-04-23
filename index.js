@@ -48,7 +48,7 @@ app.get("/", function(req,res) {
                     color: "primary is-large",
                     icon: "admin_panel_settings",
                     text: "Administrator Login",
-                    link: "/admin.html"
+                    link: "/dash/admin"
                 }
         ]
     }, {}, function(err, str){
