@@ -36,9 +36,9 @@ module.exports = function(app) {
             } else if (db.type == "link") {
                 await res.set({
                     Location: db.redir
-                });
-                await res.status(301);
-                res.end();        
+                })
+                await res.status(301)
+                res.end()        
             }
         } else {
             next()
