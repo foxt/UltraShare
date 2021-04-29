@@ -165,7 +165,7 @@ module.exports = (app) => {
                         lastUsedAt: new Date()
                     });
                     global.apiKeyDB.save();
-
+                    console.log(k)
                     res.send(k);
                 } else {
                     res.status(401);

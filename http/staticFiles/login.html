@@ -46,6 +46,7 @@
       if (totp.valid && username.value != "") {
         document.querySelector("button").className = "button is-link is-large is-loading"
         try {
+          window.sessionStorage.removeItem("userImpersonation");
           var ftch = await fetch("/api", {
             method: "POST",
             body: JSON.stringify({
