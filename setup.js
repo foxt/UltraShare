@@ -28,7 +28,6 @@ if (process.argv.includes("migrate")) {
     fs.writeFileSync("./config.js", "module.exports = " + JSON.stringify(newConfig, null, 4))
     console.log("Wrote new config")
 
-    fs.renameSync("./db", "dbOLD")
     fs.mkdirSync("./db")
     console.log('Creating users DB')
     fs.writeFileSync("./db/users.json", JSON.stringify([{
@@ -51,7 +50,7 @@ if (process.argv.includes("migrate")) {
         "lastUsedAt": new Date()
     }]))
     console.log("Updating files database")
-    var files = require("./dbOLD/files.json")
+    var files = require("./db.json")
     files.map((f) => f.user = oldConfig.username)
     fs.writeFileSync("./db/files.json",JSON.stringify(files))
     console.log("Done!")
