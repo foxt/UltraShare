@@ -145,14 +145,14 @@ module.exports = (app) => {
         console.log("[Admin_Impersonate]", req.ip, req.url, req.header("User-Agent"));
         let auth = req.header("Authorization") || req.header("authorization");
         if (auth == config.adminSecret) {
-            let k = util.util.randomString(64, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            let k = util.randomString(64, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
             if (global.apiKeyDB.get({
                 key: k
             })) {
                 res.status(500);
                 return res.send("authentication error, try again");
             }
-            let i = util.util.randomString(64, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            let i = util.randomString(64, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
             if (global.apiKeyDB.get({
                 id: i
             })) {

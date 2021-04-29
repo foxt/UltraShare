@@ -318,10 +318,7 @@ module.exports = (app) => {
         let auth = req.header("Authorization") || req.header("authorization");
         let authState = checkAuth(auth);
         if (authState && authState.fileList) {
-            res.set({
-                "Content-Type": "application/json"
-            });
-            res.send(JSON.stringify(global.fileDB.get({ user: authState.user })));
+            res.send(global.fileDB.get({ user: authState.user }));
         } else {
             res.status(401);
             res.send("invalid api key");
