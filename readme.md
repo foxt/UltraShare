@@ -8,12 +8,11 @@ https://ultrashare-public-demo--thelmgn.repl.co
 
 1. Clone from Git.
 2. `npm i`
-3. Go to [the setup wizard](https://encouraging-paper.glitch.me/), and fill out the boxes, and add the TOTP code to your mobile authenticator app.
-4. Copy everything from that page when you click generate
-5. Create a file called `config.js` and paste the stuff from step 4 in, and save
-6. Create a folder called `files`
-7. Create a file called `db.json` and in it put `[]`
-8. Fingers crossed, if you do `node index` it should work.
+3. `node setup.js setup`
+4. Remember the admin secret given to you by the script
+5. Visit http://localhost:8082/dash/admin
+6. Enter a username, click +, then enable login
+7. Follow the instructions on screen.
 
 ## MagicCap or ShareX setup guide
 
