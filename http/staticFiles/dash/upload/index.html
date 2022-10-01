@@ -138,6 +138,9 @@ function copyTextToClipboard(text) {
                     location.replace("/login.html")
                 }
             }
+            r.onerror = (e) => {
+                alert("Sorry, we couldn't upload that file.\n\nTechnical details: " + e.target.error.toString())
+            }
             r.readAsArrayBuffer(f);
         }
         
@@ -154,19 +157,23 @@ function copyTextToClipboard(text) {
         // window.addEventListener('paste', ... or
         document.onpaste = function(event){
             var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-            var i = items[0]
-            var f = i.getAsFile()
-            console.log(f)
-            uploadFile(f)
+            var files = [...items].filter((a) => a.kind == "file");
+            
+            var blob = files[0].getAsFile();
+            uploadFile(blob)
         }
         function handleDrop(ev) {
-            console.log('File(s) dropped');
+            try {
+                console.log('File(s) dropped',ev);
 
-            // Prevent default behavior (Prevent file from being opened)
-            ev.preventDefault();
+                // Prevent default behavior (Prevent file from being opened)
+                ev.preventDefault();
 
-            var f = ev.dataTransfer.items[0].getAsFile()
-            uploadFile(f)
+                var f = ev.dataTransfer.items[0].getAsFile()
+                uploadFile(f)
+            } catch(e) {
+                alert("Sorry, we couldn't upload that file.\n\nTechnical details: " + e.toString())
+            }
         }
     </script>
     <script src="../dash.js"></script>
