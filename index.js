@@ -22,6 +22,8 @@ UltraShare has detected a legacy 1.x database in the current folder. Please foll
     fs.mkdirSync("./db");
 }
 
+if (!fs.existsSync("./files/")) fs.mkdirSync("./files");
+
 global.fileDB = new DB("./db/files.json");
 global.apiKeyDB = new DB("./db/apikeys.json");
 global.userDB = new DB("./db/users.json");
