@@ -29,7 +29,7 @@
   "dependencies": {
     "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "express-rate-limit": "^3.4.0",
+    "express-rate-limit": "^3.5.3",
     "speakeasy": "^2.0.0"
   },
   "devDependencies": {
