@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/thelmgn/ultrashare#readme",
   "dependencies": {
-    "ejs": "^2.6.1",
+    "ejs": "^2.7.4",
     "express": "^4.16.4",
     "express-rate-limit": "^3.4.0",
     "speakeasy": "^2.0.0"
