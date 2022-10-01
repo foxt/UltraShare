@@ -12,7 +12,6 @@ class JsonDatabase {
             console.error("[DB] Failed to load ", filename);
             if (fs.existsSync(filename)) {
                 process.exit();
-                throw new Error("Shutting down to prevent data loss");
             }
         }
     }
@@ -31,11 +30,12 @@ class JsonDatabase {
         return returns;
     }
     update(where, change) {
+        entryLoop:
         for (let e of this.db) {
             let match = true;
             for (let prop in where) {
                 if (e[prop] != where[prop]) {
-                    continue;
+                    continue entryLoop;
                 }
             }
             for (let prop in change) {
